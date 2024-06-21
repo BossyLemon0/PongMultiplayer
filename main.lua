@@ -31,7 +31,7 @@ require 'src/Dependencies'
     game objects, variables, etc. and prepare the game world.
 ]]
 
-local address, port = "localhost", 12345
+local address = "localhost"   -- change address to be the ip address of machine
 
 local updaterate = 0.1 -- how long to wait, in seconds, before requesting an update
 
@@ -51,8 +51,8 @@ function love.load()
     -- seed the RNG so that calls to random are always random
     math.randomseed(os.time())
 
-    gameInstance = math.random(1000,1200)
-    udp:setpeername(address, gameInstance)
+    port = math.random(1000,1200) --should try a space and move to another if unavailable (random for now)
+    udp:setpeername(address, port)
 
     -- set the application title bar
     love.window.setTitle('Breakout')
@@ -144,6 +144,10 @@ function love.load()
     gStateMachine:change('start', {
         highScores = loadHighScores()
     },udp)
+
+    Network:Init()
+
+    Network:AddPeers(address, port)
 
     -- play our music outside of all states and set it to looping
     gSounds['music']:play()
