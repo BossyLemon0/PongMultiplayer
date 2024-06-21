@@ -30,15 +30,31 @@ require 'src/Dependencies'
     Called just once at the beginning of the game; used to set up
     game objects, variables, etc. and prepare the game world.
 ]]
+
+local address, port = "localhost", 12345
+
+local updaterate = 0.1 -- how long to wait, in seconds, before requesting an update
+
+local world = {} -- the empty world-state
+local t
+
 function love.load()
     -- set love's default filter to "nearest-neighbor", which essentially
     -- means there will be no filtering of pixels (blurriness), which is
     -- important for a nice crisp, 2D look
+    udp = socket.udp()
+    udp:settimeout(0)
+
+
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
     -- seed the RNG so that calls to random are always random
     math.randomseed(os.time())
 
+    gameInstance = math.random(1000,1200)
+    udp:setpeername(address, gameInstance)
+    print(gameInstance)
+    print(udp:getpeername())
     -- set the application title bar
     love.window.setTitle('Breakout')
 
