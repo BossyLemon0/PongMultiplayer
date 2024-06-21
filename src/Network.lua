@@ -1,4 +1,4 @@
-local udp = socket.udp
+local udp = socket.udp()
 
 udp:settimeout(0)
 udp:setsockname('*', 12345)

@@ -20,8 +20,10 @@ StartState = Class{__includes = BaseState}
 -- whether we're highlighting "Start" or "High Scores"
 local highlighted = 1
 
-function StartState:enter(params)
+function StartState:enter(params, udp)
     self.highScores = params.highScores
+    self.udp = udp
+    print(self.udp:getpeername())
 end
 
 function StartState:update(dt)

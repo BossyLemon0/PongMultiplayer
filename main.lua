@@ -53,8 +53,7 @@ function love.load()
 
     gameInstance = math.random(1000,1200)
     udp:setpeername(address, gameInstance)
-    print(gameInstance)
-    print(udp:getpeername())
+
     -- set the application title bar
     love.window.setTitle('Breakout')
 
@@ -144,7 +143,7 @@ function love.load()
     }
     gStateMachine:change('start', {
         highScores = loadHighScores()
-    })
+    }, udp)
 
     -- play our music outside of all states and set it to looping
     gSounds['music']:play()
