@@ -22,10 +22,11 @@ local chars = {
 -- char we're currently changing
 local highlightedChar = 1
 
-function EnterHighScoreState:enter(params)
+function EnterHighScoreState:enter(params, udp)
     self.highScores = params.highScores
     self.score = params.score
     self.scoreIndex = params.scoreIndex
+    self.udp = udp
 end
 
 function EnterHighScoreState:update(dt)
@@ -56,7 +57,7 @@ function EnterHighScoreState:update(dt)
 
         gStateMachine:change('high-scores', {
             highScores = self.highScores
-        })
+        }, self.udp)
     end
 
     -- scroll through character slots
