@@ -16,7 +16,7 @@
 
 ServeState = Class{__includes = BaseState}
 
-function ServeState:enter(params)
+function ServeState:enter(params, udp)
     -- grab game state from params
     self.paddle = params.paddle
     self.bricks = params.bricks
@@ -33,6 +33,7 @@ function ServeState:enter(params)
     -- init new ball (random color for fun)
     self.ball = Ball()
     self.ball.skin = math.random(7)
+    self.udp = udp
 end
 
 function ServeState:update(dt)
@@ -57,7 +58,7 @@ function ServeState:update(dt)
             ball = self.ball,
             level = self.level,
             recoverPoints = self.recoverPoints
-        })
+        }, self.udp)
     end
 
     if love.keyboard.wasPressed('escape') then

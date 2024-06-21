@@ -13,7 +13,7 @@
 
 VictoryState = Class{__includes = BaseState}
 
-function VictoryState:enter(params)
+function VictoryState:enter(params, udp)
     self.level = params.level
     self.score = params.score
     self.highScores = params.highScores
@@ -21,6 +21,7 @@ function VictoryState:enter(params)
     self.health = params.health
     self.ball = params.ball
     self.recoverPoints = params.recoverPoints
+    self.udp = udp
 end
 
 function VictoryState:update(dt)
@@ -45,7 +46,7 @@ function VictoryState:update(dt)
             score = self.score,
             highScores = self.highScores,
             recoverPoints = self.recoverPoints
-        })
+        }, self.udp)
     end
 end
 

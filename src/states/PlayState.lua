@@ -20,7 +20,7 @@ PlayState = Class{__includes = BaseState}
     We initialize what's in our PlayState via a state table that we pass between
     states as we go from playing to serving.
 ]]
-function PlayState:enter(params)
+function PlayState:enter(params, udp)
     self.paddle = params.paddle
     self.bricks = params.bricks
     self.powers = params.powers
@@ -46,6 +46,8 @@ function PlayState:enter(params)
     self.scoredInLife = 0
     self.timer = 0
     self.multiplier = 1
+
+    self.udp = udp
 
 
 end
@@ -209,7 +211,7 @@ function PlayState:update(dt)
                     highScores = self.highScores,
                     ball = ball,
                     recoverPoints = self.recoverPoints
-                })
+                }, self.udp)
             end
 
             --
@@ -346,7 +348,7 @@ function PlayState:update(dt)
                 gStateMachine:change('game-over', {
                     score = self.score,
                     highScores = self.highScores
-                })
+                }, self.udp)
             else
                 gStateMachine:change('serve', {
                     paddle = self.paddle,
@@ -359,7 +361,7 @@ function PlayState:update(dt)
                     highScores = self.highScores,
                     level = self.level,
                     recoverPoints = self.recoverPoints
-                })
+                }, self.udp)
             end
         elseif ball.y >= VIRTUAL_HEIGHT and self.ballsInPlay > 1 then
             ball.inPlay = false

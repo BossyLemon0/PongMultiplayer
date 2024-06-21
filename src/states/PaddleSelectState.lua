@@ -14,8 +14,9 @@
 
 PaddleSelectState = Class{__includes = BaseState}
 
-function PaddleSelectState:enter(params)
+function PaddleSelectState:enter(params, udp)
     self.highScores = params.highScores
+    self.udp = udp
 end
 
 function PaddleSelectState:init()
@@ -59,7 +60,7 @@ function PaddleSelectState:update(dt)
             highScores = self.highScores,
             level = INIT_LEVEL,
             recoverPoints = 5000
-        })
+        }, self.udp)
     end
 
     if love.keyboard.wasPressed('escape') then

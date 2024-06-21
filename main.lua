@@ -143,7 +143,7 @@ function love.load()
     }
     gStateMachine:change('start', {
         highScores = loadHighScores()
-    }, udp)
+    },udp)
 
     -- play our music outside of all states and set it to looping
     gSounds['music']:play()

@@ -12,8 +12,9 @@
 
 HighScoreState = Class{__includes = BaseState}
 
-function HighScoreState:enter(params)
+function HighScoreState:enter(params, udp)
     self.highScores = params.highScores
+    self.udp = udp
 end
 
 function HighScoreState:update(dt)
@@ -23,7 +24,7 @@ function HighScoreState:update(dt)
         
         gStateMachine:change('start', {
             highScores = self.highScores
-        })
+        }, self.udp)
     end
 end
 

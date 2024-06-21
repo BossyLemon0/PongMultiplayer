@@ -14,9 +14,10 @@
 
 GameOverState = Class{__includes = BaseState}
 
-function GameOverState:enter(params)
+function GameOverState:enter(params, udp)
     self.score = params.score
     self.highScores = params.highScores
+    self.udp = udp
 end
 
 function GameOverState:update(dt)
@@ -41,11 +42,11 @@ function GameOverState:update(dt)
                 highScores = self.highScores,
                 score = self.score,
                 scoreIndex = highScoreIndex
-            }) 
+            }, self.udp) 
         else 
             gStateMachine:change('start', {
                 highScores = self.highScores
-            }) 
+            }, self.udp) 
         end
     end
 
