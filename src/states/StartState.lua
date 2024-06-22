@@ -28,8 +28,19 @@ end
 
 function StartState:update(dt)
     -- toggle highlighted option if we press an arrow key up or down
-    if love.keyboard.wasPressed('up') or love.keyboard.wasPressed('down') then
-        highlighted = highlighted == 1 and 2 or 1
+    if love.keyboard.wasPressed('up') then
+        if highlighted == 1 then
+            highlighted = 3
+        else
+            highlighted = highlighted - 1
+        end
+        gSounds['paddle-hit']:play()
+    elseif love.keyboard.wasPressed('down') then
+        if highlighted == 3 then
+            highlighted = 1
+        else
+            highlighted = highlighted + 1
+        end
         gSounds['paddle-hit']:play()
     end
 
@@ -41,7 +52,7 @@ function StartState:update(dt)
             gStateMachine:change('paddle-select', {
                 highScores = self.highScores
             }, self.udp)
-        else
+        elseif highlighted == 3 then
             gStateMachine:change('high-scores', {
                 highScores = self.highScores
             }, self.udp)
@@ -67,14 +78,23 @@ function StartState:render()
     if highlighted == 1 then
         love.graphics.setColor(103/255, 1, 1, 1)
     end
-    love.graphics.printf("START", 0, VIRTUAL_HEIGHT / 2 + 70,
+    love.graphics.printf("SINGLE PLAYER", 0, VIRTUAL_HEIGHT / 2 + 50,
+        VIRTUAL_WIDTH, 'center')
+
+    -- reset the color
+    love.graphics.setColor(1, 1, 1, 1)
+
+    if highlighted == 2 then
+        love.graphics.setColor(103/255, 1, 1, 1)
+    end
+    love.graphics.printf("MULTIPLAYER PLAYER", 0, VIRTUAL_HEIGHT / 2 + 70,
         VIRTUAL_WIDTH, 'center')
 
     -- reset the color
     love.graphics.setColor(1, 1, 1, 1)
 
     -- render option 2 blue if we're highlighting that one
-    if highlighted == 2 then
+    if highlighted == 3 then
         love.graphics.setColor(103/255, 1, 1, 1)
     end
     love.graphics.printf("HIGH SCORES", 0, VIRTUAL_HEIGHT / 2 + 90,

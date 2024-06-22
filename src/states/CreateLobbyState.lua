@@ -1,0 +1,1 @@
+--Takes user to form to create lobby and then goes to wait once submitted
