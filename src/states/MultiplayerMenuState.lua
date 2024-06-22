@@ -27,13 +27,13 @@ function MultiplayerMenuState:update(dt)
     -- toggle highlighted option if we press an arrow key up or down
     if love.keyboard.wasPressed('up') then
         if highlighted == 1 then
-            highlighted = 3
+            highlighted = 2
         else
             highlighted = highlighted - 1
         end
         gSounds['paddle-hit']:play()
     elseif love.keyboard.wasPressed('down') then
-        if highlighted == 3 then
+        if highlighted == 2 then
             highlighted = 1
         else
             highlighted = highlighted + 1
@@ -53,10 +53,6 @@ function MultiplayerMenuState:update(dt)
                 gStateMachine:change('paddle-select', {
                     highScores = self.highScores
                 }, self.udp)
-        elseif highlighted == 3 then
-            gStateMachine:change('high-scores', {
-                highScores = self.highScores
-            }, self.udp)
         end
     end
 
@@ -75,7 +71,7 @@ function MultiplayerMenuState:render()
     if highlighted == 1 then
         love.graphics.setColor(103/255, 1, 1, 1)
     end
-    love.graphics.printf("Create lobby", 0, VIRTUAL_HEIGHT / 2 + 50,
+    love.graphics.printf("Create lobby", 0, VIRTUAL_HEIGHT / 2,
         VIRTUAL_WIDTH, 'center')
 
     -- reset the color
@@ -84,7 +80,7 @@ function MultiplayerMenuState:render()
     if highlighted == 2 then
         love.graphics.setColor(103/255, 1, 1, 1)
     end
-    love.graphics.printf("Join lobby", 0, VIRTUAL_HEIGHT / 2 + 70,
+    love.graphics.printf("Join lobby", 0, VIRTUAL_HEIGHT / 2 + 20,
         VIRTUAL_WIDTH, 'center')
 
     -- reset the color

@@ -53,7 +53,7 @@ function StartState:update(dt)
                 highScores = self.highScores
             }, self.udp)
         elseif highlighted == 2 then
-                gStateMachine:change('paddle-select', {
+                gStateMachine:change('multiplayer-select-menu', {
                     highScores = self.highScores
                 }, self.udp)
         elseif highlighted == 3 then

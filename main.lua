@@ -149,7 +149,9 @@ function love.load()
         ['victory'] = function() return VictoryState() end,
         ['high-scores'] = function() return HighScoreState() end,
         ['enter-high-score'] = function() return EnterHighScoreState() end,
-        ['paddle-select'] = function() return PaddleSelectState() end
+        ['paddle-select'] = function() return PaddleSelectState() end,
+
+        ['multiplayer-select-menu'] = function() return MultiplayerMenuState() end
     }
     gStateMachine:change('start', {
         highScores = loadHighScores()

@@ -57,3 +57,6 @@ require 'src/states/PlayState'
 require 'src/states/ServeState'
 require 'src/states/StartState'
 require 'src/states/VictoryState'
+
+--Multiplayer lobby
+require 'src/states/MultiplayerMenuState'
