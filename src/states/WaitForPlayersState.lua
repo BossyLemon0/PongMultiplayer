@@ -2,29 +2,28 @@
 
     Breakout multiplayer refactor
 
-    -- Create lobby class --
+    -- Wait lobby state--
 
     Author: Omar Ramirez
     omardramirez2002@gmail.com
 
-    Represents the state to create a lobby
+    Represents the state to wait for players to join 
 ]]
 
---Takes user to form to create lobby and then goes to wait once submitted
---For now just a button that creates a new lobby, and attaches a random id to it
+-- Shows waiting information after creating a lobby,
 
-CreateLobbyState = Class{__includes = BaseState}
+WaitForPlayersState = Class{__includes = BaseState}
 
 -- whether we're highlighting "Start" or "High Scores"
 local highlighted = 1
 
-function CreateLobbyState:enter(params,udp)
+function WaitForPlayersState:enter(params,udp)
     self.highScores = params.highScores
     self.udp = udp
     -- print(self.udp:getpeername())
 end
 
-function CreateLobbyState:update(dt)
+function WaitForPlayersState:update(dt)
     -- toggle highlighted option if we press an arrow key up or down
     if love.keyboard.wasPressed('right') then
         if highlighted == 1 then
@@ -47,11 +46,11 @@ function CreateLobbyState:update(dt)
         gSounds['confirm']:play()
 
         if highlighted == 1 then
-            gStateMachine:change('wait-for-players', {
+            gStateMachine:change('create-lobby', {
                 highScores = self.highScores
             }, self.udp)
         elseif highlighted == 2 then
-                gStateMachine:change('multiplayer-select-menu', {
+                gStateMachine:change('paddle-select', {
                     highScores = self.highScores
                 }, self.udp)
         end
@@ -63,7 +62,10 @@ function CreateLobbyState:update(dt)
     end
 end
 
-function CreateLobbyState:render()
+function WaitForPlayersState:render()
+    love.graphics.setFont(gFonts['large'])
+    love.graphics.printf("Waiting for players...", 0, VIRTUAL_HEIGHT / 2 - 20,
+        VIRTUAL_WIDTH, 'center')
 
     -- instructions
     love.graphics.setFont(gFonts['medium'])
@@ -72,8 +74,8 @@ function CreateLobbyState:render()
     if highlighted == 1 then
         love.graphics.setColor(103/255, 1, 1, 1)
     end
-    love.graphics.printf("Create", 0, VIRTUAL_HEIGHT / 2,
-        VIRTUAL_WIDTH + 100, 'center')
+    love.graphics.printf("Back", 0, VIRTUAL_HEIGHT / 2 + 20,
+        VIRTUAL_WIDTH - 100, 'center')
 
     -- reset the color
     love.graphics.setColor(1, 1, 1, 1)
@@ -81,8 +83,8 @@ function CreateLobbyState:render()
     if highlighted == 2 then
         love.graphics.setColor(103/255, 1, 1, 1)
     end
-    love.graphics.printf("Back", 0, VIRTUAL_HEIGHT / 2,
-        VIRTUAL_WIDTH - 100, 'center')
+    love.graphics.printf("Start", 0, VIRTUAL_HEIGHT / 2 + 20,
+        VIRTUAL_WIDTH + 100, 'center')
 
     -- reset the color
     love.graphics.setColor(1, 1, 1, 1)

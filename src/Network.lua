@@ -26,7 +26,7 @@ function Network:Init()
     -- print(self.udp:getsockname())
     self.udp:settimeout(0)
     self.peers = {}
-    self.world = {}
+    self.lobbies = {}
 end
 
 

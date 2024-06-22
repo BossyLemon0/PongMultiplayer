@@ -46,11 +46,11 @@ function MultiplayerMenuState:update(dt)
         gSounds['confirm']:play()
 
         if highlighted == 1 then
-            gStateMachine:change('paddle-select', {
+            gStateMachine:change('create-lobby', {
                 highScores = self.highScores
             }, self.udp)
         elseif highlighted == 2 then
-                gStateMachine:change('paddle-select', {
+                gStateMachine:change('join-lobby', {
                     highScores = self.highScores
                 }, self.udp)
         end

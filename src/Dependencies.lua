@@ -60,3 +60,6 @@ require 'src/states/VictoryState'
 
 --Multiplayer lobby
 require 'src/states/MultiplayerMenuState'
+require 'src/states/CreateLobbyState'
+require 'src/states/WaitForPlayersState'
+require 'src/states/JoinLobbyState'

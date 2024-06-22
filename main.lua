@@ -151,7 +151,10 @@ function love.load()
         ['enter-high-score'] = function() return EnterHighScoreState() end,
         ['paddle-select'] = function() return PaddleSelectState() end,
 
-        ['multiplayer-select-menu'] = function() return MultiplayerMenuState() end
+        ['multiplayer-select-menu'] = function() return MultiplayerMenuState() end,
+        ['create-lobby'] = function() return CreateLobbyState() end,
+        ['wait-for-players'] = function() return WaitForPlayersState() end,
+        ['join-lobby'] = function() return JoinLobbyState() end
     }
     gStateMachine:change('start', {
         highScores = loadHighScores()
