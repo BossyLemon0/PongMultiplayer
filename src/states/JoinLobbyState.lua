@@ -19,9 +19,18 @@ local highlighted = 1
 
 function JoinLobbyState:enter(params,udp)
     self.highScores = params.highScores
+    -- self.lobbies = params.lobbies  Getting lobbies should be done by recieving a call from the network
     self.udp = udp
+    self.lobbies = {}
+    JoinLobbyState:requestLobbies(self.udp)
     -- print(self.udp:getpeername())
 end
+
+function JoinLobbyState:requestLobbies(udp)
+    local requestLobbies = string.format("%s %s %s %s %d", "lobbies", 'request', 'order_by_when_created' , self.address, self.port)
+    udp:send(requestLobbies)
+end
+
 
 function JoinLobbyState:update(dt)
     -- toggle highlighted option if we press an arrow key up or down

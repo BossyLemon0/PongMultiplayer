@@ -21,10 +21,22 @@ local highlighted = 1
 function CreateLobbyState:enter(params,udp)
     self.highScores = params.highScores
     self.udp = udp
-    -- print(self.udp:getpeername())
+    self.lobbyId = 0
+    self.address, self.port = '', 0
+    print("at Createlobby ".. self.udp:getpeername())
+end
+
+function CreateLobbyState:CreateInfo(udp)
+    -- add checks to see what id's are available from network, for now just random
+    -- add username sending
+    self.lobbyId = math.random(40)
+    self.address, self.port = udp:getsockname()
+    local addLobby = string.format("%s %s %s %s %d %d", "lobby", 'update', 'add' , self.address, self.port, self.lobbyId)
+    udp:send(addLobby)
 end
 
 function CreateLobbyState:update(dt)
+    -- add naming capture
     -- toggle highlighted option if we press an arrow key up or down
     if love.keyboard.wasPressed('right') then
         if highlighted == 1 then
@@ -47,6 +59,8 @@ function CreateLobbyState:update(dt)
         gSounds['confirm']:play()
 
         if highlighted == 1 then
+                CreateLobbyState:CreateInfo(self.udp)
+
             gStateMachine:change('wait-for-players', {
                 highScores = self.highScores
             }, self.udp)
