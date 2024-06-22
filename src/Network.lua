@@ -19,9 +19,7 @@ end
 
 
 function Network:AddPeers(peerAddress, peerPort)
-    print('added new user')
-    print("the host is: ".. peerAddress)
-    print(peerPort)
+    print('added new user: '.. peerAddress.. ":" .. peerPort)
     self.peers[peerAddress .. ":" .. peerPort] = {peerAddress = peerAddress, peerPort = peerPort}
     print('peers'..self.peers[peerAddress .. ":" .. peerPort].peerAddress)
     Network:ShowPeers()
