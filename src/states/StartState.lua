@@ -52,6 +52,10 @@ function StartState:update(dt)
             gStateMachine:change('paddle-select', {
                 highScores = self.highScores
             }, self.udp)
+        elseif highlighted == 2 then
+                gStateMachine:change('paddle-select', {
+                    highScores = self.highScores
+                }, self.udp)
         elseif highlighted == 3 then
             gStateMachine:change('high-scores', {
                 highScores = self.highScores

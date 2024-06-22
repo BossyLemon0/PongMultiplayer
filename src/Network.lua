@@ -1,3 +1,15 @@
+--[[
+
+    Breakout multiplayer refactor
+
+    -- Network class --
+
+    Author: Omar Ramirez
+    omardramirez2002@gmail.com
+
+    Represents the network module to handle client requests
+]]
+
 Network = Class{}
 
 local host = "*" -- listen for all addresses
