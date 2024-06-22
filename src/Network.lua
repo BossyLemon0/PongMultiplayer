@@ -24,11 +24,14 @@ function Network:AddPeers(peerAddress, peerPort)
     print(peerPort)
     self.peers[peerAddress .. ":" .. peerPort] = {peerAddress = peerAddress, peerPort = peerPort}
     print('peers'..self.peers[peerAddress .. ":" .. peerPort].peerAddress)
+    Network:ShowPeers()
+end
+
+function Network:ShowPeers()
     for k, peer in pairs(self.peers) do
         print(peer.peerPort)
     end
 end
-
 
 
 function Network:update(dt)
