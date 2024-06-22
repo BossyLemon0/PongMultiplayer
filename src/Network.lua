@@ -18,10 +18,12 @@ function Network:Init()
 end
 
 
-function Network:AddPeers(address, peerPort)
+function Network:AddPeers(peerAddress, peerPort)
     print('added new user')
-    self.peers[address .. ":" .. peerPort] = {address = address, port = peerPort}
-    print(self.peers)
+    print("the host is: ".. peerAddress)
+    print(peerPort)
+    self.peers[peerAddress .. ":" .. peerPort] = {peerAddress = peerAddress, peerPort = peerPort}
+    print('peers'..self.peers[peerAddress .. ":" .. peerPort].peerAddress)
 end
 
 
@@ -41,8 +43,10 @@ function Network:update(dt)
         elseif cmd  == 'update' then
             if entity == 'peer' then
                 print(parms .. "type".. type(parms))
-                local host, port = string.match(parms, "([^%s]+) (%d+)")
-                -- Network.AddPeers()
+                peerHost, peerPort = string.match(parms, "([^%s]+) (%d+)")
+                print('host has type of: '.. type(peerHost) .."port has type of: ".. type(peerPort))
+                print('host is: '.. peerHost .." port is: ".. peerPort)
+                Network:AddPeers(peerHost, peerPort)
             end
         end
     -- elseif msg_or_ip ~= 'timeout' then
