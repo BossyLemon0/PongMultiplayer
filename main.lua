@@ -31,7 +31,7 @@ require 'src/Dependencies'
     game objects, variables, etc. and prepare the game world.
 ]]
 
-local address = "localhost"   -- change address to be the ip address of machine
+local localaddress = "localhost"   -- change address to be the ip address of machine
 
 local updaterate = 0.1 -- how long to wait, in seconds, before requesting an update
 
@@ -42,17 +42,27 @@ function love.load()
     -- set love's default filter to "nearest-neighbor", which essentially
     -- means there will be no filtering of pixels (blurriness), which is
     -- important for a nice crisp, 2D look
-    udp = socket.udp()
-    udp:settimeout(0)
-
-
-    love.graphics.setDefaultFilter('nearest', 'nearest')
 
     -- seed the RNG so that calls to random are always random
     math.randomseed(os.time())
 
-    port = math.random(1000,1200) --should try a space and move to another if unavailable (random for now)
-    udp:setpeername(address, port)
+    --network code
+    Network:Init()
+    udp = socket.udp()
+    udp:settimeout(0)
+
+    udp:setsockname('*', 0) --binds to any open port
+    udp:setpeername(localaddress, 12345)
+    address, port = udp:getsockname()
+
+    local addPeerdg = string.format("%s %s %s %d", "peer", 'update', localaddress, port)
+    udp:send(addPeerdg)
+    
+
+
+    --crisp or blurry textures 
+    love.graphics.setDefaultFilter('nearest', 'nearest')
+
 
     -- set the application title bar
     love.window.setTitle('Breakout')
@@ -145,9 +155,8 @@ function love.load()
         highScores = loadHighScores()
     },udp)
 
-    Network:Init()
 
-    Network:AddPeers(address, port)
+
 
     -- play our music outside of all states and set it to looping
     gSounds['music']:play()

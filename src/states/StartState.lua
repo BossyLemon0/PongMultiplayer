@@ -23,7 +23,7 @@ local highlighted = 1
 function StartState:enter(params,udp)
     self.highScores = params.highScores
     self.udp = udp
-    print(self.udp:getpeername())
+    -- print(self.udp:getpeername())
 end
 
 function StartState:update(dt)

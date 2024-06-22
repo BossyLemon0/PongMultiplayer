@@ -14,6 +14,8 @@ Class = require 'lib/class'
 
 socket = require 'socket'
 
+Timer = require 'lib/knife.timer'
+
 -- a few global constants, centralized
 require 'src/constants'
 
