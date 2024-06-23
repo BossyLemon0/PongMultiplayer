@@ -27,6 +27,7 @@ function Network:Init()
     self.udp:settimeout(0)
     self.peers = {}
     self.lobbies = {}
+    self.lobbyOrder = {}
 end
 
 -- peer code
@@ -46,12 +47,47 @@ end
 -- lobby code
 function Network:AddLobby(peerAddress, peerPort, lobbyId)
     self.lobbies[lobbyId] = {peerAddress = peerAddress, peerPort = peerPort, lobbyId = lobbyId}
+    table.insert(self.lobbyOrder, lobbyId)
     print('lobbies: '..self.lobbies[lobbyId].peerPort)
     Network:ShowLobbies()
 end
 
+function Network:DeleteLobby(lobbyId)
+    self.lobbies[lobbyId] = nil
+    for i, id in pairs(self.lobbyOrder) do
+        if id == lobbyId then
+            table.remove(self.lobbyOrder, i)
+        end
+    end
+end
+
 function Network:JoinLobbies(peerAddress, peerPort, lobbyId)
     table.insert(self.lobbies[lobbyId], {peerAddress = peerAddress, peerPort = peerPort})
+end
+
+function Network:SendLobbiesInOrder(userIp, userPort)
+    local datagramsTable = Network:createDatagram()
+    for i, datagram in pairs(datagramsTable) do
+        self.udp:sendto(datagram, userIp, userPort)
+    end
+end
+
+function Network:createDatagram()
+    local lobbystring = ''
+    local datagrams = {}
+    for orderId, lobbyid in pairs(self.lobbyOrder) do
+        local lobby = self.lobbies[lobbyid]
+        lobbystring = lobbystring .. "lobby:" .. tostring(lobby[1].lobbyId)
+        for _, player in pairs(lobby) do
+            lobbystring = lobbystring ..
+            " {".. player.peerAddress .. ','
+            .. tostring(player.port).. ','..
+            "}" 
+        end
+        table.insert(datagrams, lobbystring)
+        lobby = ''
+    end
+    return datagrams
 end
 
 function Network:ShowLobbies()
@@ -93,12 +129,7 @@ function Network:update(dt)
             --send lobbies to user
             if entity == 'lobbies' then
                 if entitycmd == 'order_by_when_created' then
-                    for i, lobby in pairs(self.lobbies) do
-                        self.udp:sendto(string.format("%s", lobby.lobbyId), msg_or_ip,  port_or_nil)
-                        for index, data in pairs(lobby) do
-                            self.udp:sendto(string.format("%s %s %d %d", lobby.x, lobby.y), msg_or_ip,  port_or_nil)
-                        end
-                    end
+                    Network:SendLobbiesInOrder(msg_or_ip, port_or_nil)
                 end
             end
         end
