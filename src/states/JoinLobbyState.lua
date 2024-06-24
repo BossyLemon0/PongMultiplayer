@@ -79,6 +79,12 @@ function JoinLobbyState:update(dt)
         local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(data)
         print("Now create table: "..lobbyId)
         print("Found in table: "..playerTable[1].peerPort)
+        -- reconstruct lobby and lobby order
+        self.lobbies[lobbyId] =  playerTable
+        table.insert(self.lobbyOrder,lobbyId)
+        -- for i, player in pairs(playerTable) do
+        --     table.insert(self.lobbies[lobbyId], playerTable)
+        -- end
     end
 
     if #self.lobbies > 0 then
