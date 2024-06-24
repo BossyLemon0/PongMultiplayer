@@ -80,13 +80,24 @@ function Network:createDatagram()
     local datagrams = {}
     for orderId, lobbyid in pairs(self.lobbyOrder) do
         local lobby = self.lobbies[lobbyid]
-        lobbystring = lobbystring .. "lobby:" .. tostring(lobby[1].lobbyId)
-        for _, player in pairs(lobby) do
-            lobbystring = lobbystring ..
-            " {".. player.peerAddress .. ','
-            .. tostring(player.port).. ','..
-            "}" 
+        lobbystring = lobbystring .. "lobby:" .. tostring(lobby.lobbyId)
+        lobbystring = lobbystring ..
+        " {".. lobby.peerAddress.. ','
+        .. tostring(lobby.peerPort)..
+        "}"
+
+        print(lobbystring)
+
+        if lobby[1] then
+            for _, player in pairs(lobby) do
+                print("this is player:"..player)
+                lobbystring = lobbystring ..
+                " {".. player[1] .. ','
+                .. tostring(player[2]).. ','..
+                "}" 
+            end
         end
+
         table.insert(datagrams, lobbystring)
         lobby = ''
     end
@@ -97,6 +108,7 @@ function Network:ShowLobbies()
     if self.lobbies[self.lobbyOrder[1]] then
         for k, lobby in pairs(self.lobbies) do
             print('lobby id is: '..lobby.lobbyId)
+            print("lobby looks like".. lobby.peerPort)
         end
     else
         print('no lobbies')

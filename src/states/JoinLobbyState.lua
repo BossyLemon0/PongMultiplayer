@@ -27,38 +27,58 @@ function JoinLobbyState:enter(params,udp)
     self.menulistcount = 0
     JoinLobbyState:requestLobbies(self.udp)
     -- print(self.udp:getpeername())
+    self.testTimer = 0
 end
 
 function JoinLobbyState:requestLobbies(udp)
-    local requestLobbies = string.format("%s %s %s %s %d", "lobbies", 'request', 'order_by_when_created' , self.address, self.port)
+    local address, port = udp:getsockname()
+    local requestLobbies = string.format("%s %s %s %s %d", "lobbies", 'request', 'order_by_when_created' , address, port)
     udp:send(requestLobbies)
 end
 
 function JoinLobbyState:parseLobbyData(data)
     local lobbyId = JoinLobbyState:parseLobbyId(data)
-    JoinLobbyState:parsePlayerInfo(data, lobbyId)
+    local playersTable = JoinLobbyState:parsePlayerInfo(data)
+
+    -- print('lobby working here '..lobbyId)
+    print(playersTable[1].peerAddress)
+    -- print('player table has port: '..playersTable)
+    return lobbyId, playersTable
 end
 
 function JoinLobbyState:parseLobbyId(string)
+    print(string)
     local id_pattern = "lobby:(%d+)"
     return string:match(id_pattern)
 end
 
-function JoinLobbyState:parsePlayerInfo(string, lobbyId)
-    local player_pattern = "{%s*(%w+)%s*,%s*(%d+)%s*}"
-    for address, port in string:gmatch(player_pattern) do 
-        table.insert(self.lobbies[lobbyId], {peerAddress = address, peerPort = port})
+function JoinLobbyState:parsePlayerInfo(string)
+    print ("this is string in paseplayer"..string)
+    local players = {}
+    local player_pattern1 = "{%s*(%w+)%s*,%s*(%d+)%s*}" --first pattern to just for words
+    local player_pattern2 = "{%s*([^,]+)%s*,%s*(%d+)%s*}" --second pattern to account for colons
+    for address, port in string:gmatch(player_pattern2) do
+        print("parseplayer address:"..address)
+        print("parseplayer port:"..port)
+        table.insert(players, {peerAddress = address, peerPort = port})
     end
-    table.insert(self.lobbyOrder, lobbyId)
-    self.menulistcount = self.menulistcount + 1
+    return players
 end
 
 
 function JoinLobbyState:update(dt)
 
+    self.testTimer = self.testTimer + dt
+    if (self.testTimer > 10) then
+        -- print(self.)
+        self.testTimer = 0
+    end
+
     local data, msg = udp:receive()
     if data then
-        JoinLobbyState:parseLobbyData(data)
+        local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(data)
+        print("Now create table: "..lobbyId)
+        print("Found in table: "..playerTable[1].peerPort)
     end
 
     if #self.lobbies > 0 then
@@ -122,7 +142,7 @@ function JoinLobbyState:render()
         love.graphics.setColor(103/255, 1, 1, 1)
     end
     love.graphics.printf("back", 0, VIRTUAL_HEIGHT / 2 + 40, VIRTUAL_WIDTH - 150, 'center')
-    
+
     love.graphics.setColor(1, 1, 1, 1)
 
 
@@ -136,6 +156,8 @@ function JoinLobbyState:render()
             -- add player info later
             spacing = spacing + 20
         end
+    else 
+        love.graphics.printf("Wow, so empty", 0, VIRTUAL_HEIGHT / 2 + spacing, VIRTUAL_WIDTH, 'center')
     end
 
 
