@@ -33,6 +33,7 @@ function CreateLobbyState:CreateInfo(udp)
     self.address, self.port = udp:getsockname()
     local addLobby = string.format("%s %s %s %s %d %d", "lobby", 'update', 'add' , self.address, self.port, self.lobbyId)
     udp:send(addLobby)
+    return self.lobbyId
 end
 
 function CreateLobbyState:update(dt)
@@ -59,15 +60,16 @@ function CreateLobbyState:update(dt)
         gSounds['confirm']:play()
 
         if highlighted == 1 then
-                CreateLobbyState:CreateInfo(self.udp)
+            
 
             gStateMachine:change('wait-for-players', {
-                highScores = self.highScores
+                highScores = self.highScores,
+                lobbyId = CreateLobbyState:CreateInfo(self.udp)
             }, self.udp)
         elseif highlighted == 2 then
-                gStateMachine:change('multiplayer-select-menu', {
-                    highScores = self.highScores
-                }, self.udp)
+            gStateMachine:change('multiplayer-select-menu', {
+                highScores = self.highScores
+            }, self.udp)
         end
     end
 

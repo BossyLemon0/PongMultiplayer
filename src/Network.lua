@@ -53,12 +53,15 @@ function Network:AddLobby(peerAddress, peerPort, lobbyId)
 end
 
 function Network:DeleteLobby(lobbyId)
+    -- print("lobby being deleted: "..lobbyId)
     self.lobbies[lobbyId] = nil
     for i, id in pairs(self.lobbyOrder) do
         if id == lobbyId then
             table.remove(self.lobbyOrder, i)
         end
     end
+    Network:ShowLobbies()
+
 end
 
 function Network:JoinLobbies(peerAddress, peerPort, lobbyId)
@@ -91,9 +94,14 @@ function Network:createDatagram()
 end
 
 function Network:ShowLobbies()
-    for k, lobby in pairs(self.lobbies) do
-        print('lobby id is: '..lobby.lobbyId)
+    if self.lobbies[self.lobbyOrder[1]] then
+        for k, lobby in pairs(self.lobbies) do
+            print('lobby id is: '..lobby.lobbyId)
+        end
+    else
+        print('no lobbies')
     end
+
 end
 
 
@@ -123,6 +131,12 @@ function Network:update(dt)
                     local peerHost, peerPort, lobbyId = string.match(parms, "([^%s]+) (%d+) (%d+)")
                     print('host is: '.. peerHost .." port is: ".. peerPort)
                     Network:AddLobby(peerHost, peerPort, lobbyId)
+                end
+            elseif entitycmd == 'delete' then
+                if entity == 'lobby' then
+                    local lobbyId = string.match(parms, "(%d+)")
+                    print("lobby being deleted: "..lobbyId)
+                    Network:DeleteLobby(lobbyId)
                 end
             end
         elseif cmd  == 'request' then

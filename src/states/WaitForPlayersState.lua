@@ -19,8 +19,15 @@ local highlighted = 1
 
 function WaitForPlayersState:enter(params,udp)
     self.highScores = params.highScores
+    self.lobbyId = params.lobbyId
     self.udp = udp
+
     -- print(self.udp:getpeername())
+end
+
+function WaitForPlayersState:DeleteInfo(udp, lobbyId)
+    local deleteLobby = string.format("%s %s %s %d", "lobby", 'update', 'delete', lobbyId)
+    udp:send(deleteLobby)
 end
 
 function WaitForPlayersState:update(dt)
@@ -46,12 +53,14 @@ function WaitForPlayersState:update(dt)
         gSounds['confirm']:play()
 
         if highlighted == 1 then
+            WaitForPlayersState:DeleteInfo(self.udp, self.lobbyId)
             gStateMachine:change('create-lobby', {
                 highScores = self.highScores
             }, self.udp)
         elseif highlighted == 2 then
                 gStateMachine:change('paddle-select', {
-                    highScores = self.highScores
+                    highScores = self.highScores,
+                    lobbyId = self.lobbyId
                 }, self.udp)
         end
     end

@@ -22,6 +22,7 @@ function JoinLobbyState:enter(params,udp)
     -- self.lobbies = params.lobbies  Getting lobbies should be done by recieving a call from the network
     self.udp = udp
     self.lobbies = {}
+    self.lobbyOrder = {}
     self.menuCursor = -1
     self.menulistcount = 0
     JoinLobbyState:requestLobbies(self.udp)
@@ -48,6 +49,7 @@ function JoinLobbyState:parsePlayerInfo(string, lobbyId)
     for address, port in string:gmatch(player_pattern) do 
         table.insert(self.lobbies[lobbyId], {peerAddress = address, peerPort = port})
     end
+    table.insert(self.lobbyOrder, lobbyId)
     self.menulistcount = self.menulistcount + 1
 end
 
@@ -88,22 +90,6 @@ function JoinLobbyState:update(dt)
             end
         end
     end
-    -- Change toggle to account for lobby ammount
-    if love.keyboard.wasPressed('up') then
-        if highlighted == 1 then
-            highlighted = 2
-        else
-            highlighted = highlighted - 1
-        end
-        gSounds['paddle-hit']:play()
-    elseif love.keyboard.wasPressed('down') then
-        if highlighted == 2 then
-            highlighted = 1
-        else
-            highlighted = highlighted + 1
-        end
-        gSounds['paddle-hit']:play()
-    end
 
     -- confirm whichever option we have selected to change screens
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
@@ -127,26 +113,31 @@ function JoinLobbyState:update(dt)
 end
 
 function JoinLobbyState:render()
-    -- _________Create loop for back button lobbies open_____________
+    -- _________finish loop to account for an overabundance_____________
 
-    -- instructions
     love.graphics.setFont(gFonts['medium'])
+    local spacing = 0
 
-    -- if we're highlighting 1, render that option blue
-    if highlighted == 1 then
+    if self.menuCursor == -1 then
         love.graphics.setColor(103/255, 1, 1, 1)
     end
-    love.graphics.printf("Create lobby", 0, VIRTUAL_HEIGHT / 2,
-        VIRTUAL_WIDTH, 'center')
-
-    -- reset the color
+    love.graphics.printf("back", 0, VIRTUAL_HEIGHT / 2 + 40, VIRTUAL_WIDTH - 150, 'center')
+    
     love.graphics.setColor(1, 1, 1, 1)
 
-    if highlighted == 2 then
-        love.graphics.setColor(103/255, 1, 1, 1)
+
+
+    if #self.lobbyOrder then
+        for i, lobbyId in pairs(self.lobbyOrder) do
+            if self.menuCursor == i then
+                love.graphics.setColor(103/255, 1, 1, 1)
+            end
+            love.graphics.printf("lobby: ".. lobbyId, 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH, 'center')
+            -- add player info later
+            spacing = spacing + 20
+        end
     end
-    love.graphics.printf("Join lobby", 0, VIRTUAL_HEIGHT / 2 + 20,
-        VIRTUAL_WIDTH, 'center')
+
 
     -- reset the color
     love.graphics.setColor(1, 1, 1, 1)
