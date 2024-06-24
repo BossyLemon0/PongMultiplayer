@@ -55,7 +55,7 @@ function love.load()
     udp:setpeername(localaddress, 12345)
     address, port = udp:getsockname()
 
-    local addPeerdg = string.format("%s %s %s %s %d", "peer", 'update', 'add', localaddress, port)
+    local addPeerdg = string.format("%s %s %s %s %d", "peer", 'update', 'add', address, port)
     udp:send(addPeerdg)
     
 

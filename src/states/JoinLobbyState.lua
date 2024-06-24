@@ -97,12 +97,16 @@ function JoinLobbyState:update(dt)
     local data, msg = udp:receive()
 
     if data then
-
+        -- ^(%S+): Matches one or more non-whitespace characters at the start of the string and captures them in command.
+        -- (.+)$: Matches one or more characters until the end of the string and captures them in datastring. 
+        print('you received the data')
+        print(data)
         local command, datastring = data:match("^(%S+) (.+)$")
-        -- print(command)
-        -- print(datastring)
-        -- if command == 'initLobbies' then
-            if #self.lobbies < 1 then
+        print(command)
+
+        if #self.lobbies < 1 then
+            if command == 'initLobbies' then
+                
                 local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(datastring)
                 print("Now create table: "..lobbyId)
                 print("Found in table: "..playerTable[1].peerPort)
@@ -112,17 +116,18 @@ function JoinLobbyState:update(dt)
                 -- for i, player in pairs(playerTable) do
                 --     table.insert(self.lobbies[lobbyId], playerTable)
                 -- end
-            else
-                -- local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(data)
-                -- print("Now create table: "..lobbyId)
-                -- print("Found in table: "..playerTable[1].peerPort)
-                -- -- reconstruct lobby and lobby order
-                -- self.lobbies[lobbyId] =  playerTable
-                -- table.insert(self.lobbyOrder,lobbyId)
                 
             end
-            
-        -- end
+        elseif #self.lobbies >= 1 then
+            if command == 'addNewLobby' then
+                local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(data)
+                print("Now create table: "..lobbyId)
+                print("Found in table: "..playerTable[1].peerPort)
+                -- reconstruct lobby and lobby order
+                self.lobbies[lobbyId] =  playerTable
+                table.insert(self.lobbyOrder,lobbyId)
+            end
+        end
 
 
     end
