@@ -69,8 +69,9 @@ end
 function JoinLobbyState:update(dt)
 
     self.testTimer = self.testTimer + dt
-    if (self.testTimer > 10) then
-        -- print(self.)
+    if (self.testTimer > 3) then
+
+        -- JoinLobbyState:requestLobbies(self.udp) Ba
         self.testTimer = 0
     end
 

@@ -50,6 +50,7 @@ function Network:AddLobby(peerAddress, peerPort, lobbyId)
     table.insert(self.lobbyOrder, lobbyId)
     print('lobbies: '..self.lobbies[lobbyId].peerPort)
     Network:ShowLobbies()
+    -- Maybe add code to push lobby information to all players on creation
 end
 
 function Network:DeleteLobby(lobbyId)
@@ -71,14 +72,16 @@ end
 function Network:SendLobbiesInOrder(userIp, userPort)
     local datagramsTable = Network:createDatagram()
     for i, datagram in pairs(datagramsTable) do
+        print("datagram sent: "..datagram)
         self.udp:sendto(datagram, userIp, userPort)
     end
 end
 
 function Network:createDatagram()
-    local lobbystring = ''
+
     local datagrams = {}
     for orderId, lobbyid in pairs(self.lobbyOrder) do
+        local lobbystring = ''
         local lobby = self.lobbies[lobbyid]
         lobbystring = lobbystring .. "lobby:" .. tostring(lobby.lobbyId)
         lobbystring = lobbystring ..
@@ -99,7 +102,7 @@ function Network:createDatagram()
         end
 
         table.insert(datagrams, lobbystring)
-        lobby = ''
+        -- lobby = ''
     end
     return datagrams
 end
