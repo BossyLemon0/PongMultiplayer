@@ -73,7 +73,7 @@ function Network:SendLobbiesInOrder(userIp, userPort)
     local datagramsTable = Network:createDatagram()
     for i, datagram in pairs(datagramsTable) do
         print("datagram sent: "..datagram)
-        self.udp:sendto(datagram, userIp, userPort)
+        self.udp:sendto(string.format("%s %s", "initLobbies", datagram), userIp, userPort)
     end
 end
 
