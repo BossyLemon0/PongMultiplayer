@@ -28,6 +28,7 @@ function Network:Init()
     self.peers = {}
     self.peersOrder = {}
     self.lobbies = {}
+    self.lobbyStates = {}
     self.lobbyOrder = {}
 end
 
@@ -47,13 +48,20 @@ function Network:ShowPeers()
 end
 
 -- lobby code
+-- 
 function Network:AddLobby(peerAddress, peerPort, lobbyId)
     self.lobbies[lobbyId] = {peerAddress = peerAddress, peerPort = peerPort, lobbyId = lobbyId}
+    self.lobbyStates[lobbyId] = {state = "waiting", playerCount = 1, limit = 4}
     table.insert(self.lobbyOrder, lobbyId)
     print('lobbies: '..self.lobbies[lobbyId].peerPort)
     Network:ShowLobbies()
-    local datagram = 'lobby:' .. tostring(lobbyId) .. " {".. peerAddress ..','.. tostring(peerPort) .."}"
-    Network:updateLobbies("addNewLobby", datagram)
+    local lobbyDatagram = 'lobby:' .. tostring(lobbyId) .. " {".. peerAddress ..','.. tostring(peerPort) .."}"
+    local lobbyStateDatagram = 'lobby:' .. tostring(lobbyId) ..
+    " {".. self.lobbyStates[lobbyId].state ..','
+    .. self.lobbyStates[lobbyId].playerCount..","
+    ..self.lobbyStates[lobbyId].limit.."}"
+    Network:updateLobbies("addNewLobby", lobbyDatagram)
+    Network:updateLobbies("addLobbyState", lobbyStateDatagram)
     -- Maybe add code to push lobby information to all players on creation
 end
 
@@ -89,7 +97,8 @@ function Network:JoinLobbies(peerAddress, peerPort, lobbyId)
 end
 
 function Network:SendLobbiesInOrder(userIp, userPort)
-    local datagramsTable = Network:createDatagram('getAll')
+    local lobbyDatagramTable = Network:createDatagram('getAllLobies')
+    local lobbyStateDatagramTable = Network:createDatagram('getAllLobbyStates')
     print('ip type')
     print(type(userIp))
     print(userIp)
@@ -97,16 +106,20 @@ function Network:SendLobbiesInOrder(userIp, userPort)
     print(type(userPort))
     print(userPort)
 
-    for i, datagram in pairs(datagramsTable) do
-        print("datagram sent: "..datagram)
-        self.udp:sendto(string.format("%s %s", "initLobbies", datagram), userIp, userPort)
+    for i, lobdatagram in pairs(lobbyDatagramTable) do
+        print("datagram sent: "..lobdatagram)
+        self.udp:sendto(string.format("%s %s", "initLobbies", lobdatagram), userIp, userPort)
+    end
+    for i, lobstatedatagram in pairs(lobbyStateDatagramTable) do
+        print("datagram sent: "..lobstatedatagram)
+        self.udp:sendto(string.format("%s %s", "initLobbyStates", lobstatedatagram), userIp, userPort)
     end
 end
 
 function Network:createDatagram(query, payload)
 
 
-    if query == "getAll" then
+    if query == "getAllLobies" then
         local datagrams = {}
         for orderId, lobbyid in pairs(self.lobbyOrder) do
             local lobbystring = ''
@@ -133,7 +146,23 @@ function Network:createDatagram(query, payload)
             -- lobby = ''
         end
         return datagrams
-    elseif query == "getNew" then
+    elseif query == "getAllLobbyStates" then
+        local datagrams = {}
+        for orderId, lobbyid in pairs(self.lobbyOrder) do
+            local lobbystring = ''
+            local lobby = self.lobbies[lobbyid]
+            local lobbyState = self.lobbyStates[lobbyid]
+            lobbystring = lobbystring .. "lobby:" .. tostring(lobby.lobbyId)
+            lobbystring = lobbystring ..
+            " {".. lobbyState.state.. ','
+            .. tostring(lobbyState.playerCount)..','
+            .. tostring(lobbyState.limit)..
+            "}"
+    
+            table.insert(datagrams, lobbystring)
+            -- lobby = ''
+        end
+        return datagrams
     end
 
 end

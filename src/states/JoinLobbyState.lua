@@ -22,6 +22,7 @@ function JoinLobbyState:enter(params,udp)
     -- self.lobbies = params.lobbies  Getting lobbies should be done by recieving a call from the network
     self.udp = udp
     self.lobbies = {}
+    self.lobbyStates = {}
     self.lobbyOrder = {}
     self.menuCursor = -1
     self.menulistcount = 0
@@ -54,14 +55,16 @@ function JoinLobbyState:requestLobbies(self,udp)
 
 end
 
-function JoinLobbyState:parseLobbyData(data)
+function JoinLobbyState:parseLobbyData(data, command)
     local lobbyId = JoinLobbyState:parseLobbyId(data)
-    local playersTable = JoinLobbyState:parsePlayerInfo(data)
+    if command == "addNewLobby" then
+        local playersTable = JoinLobbyState:parsePlayerInfo(data)
+        return tonumber(lobbyId), playersTable
+    elseif command == "addLobbyState" then
+        local statesTable = JoinLobbyState:parseLobbyInfo(data)
+        return tonumber(lobbyId), statesTable
+    end
 
-    -- print('lobby working here '..lobbyId)
-    print(playersTable[1].peerAddress)
-    -- print('player table has port: '..playersTable)
-    return tonumber(lobbyId), playersTable
 end
 
 function JoinLobbyState:parseLobbyId(string)
@@ -78,9 +81,22 @@ function JoinLobbyState:parsePlayerInfo(string)
     for address, port in string:gmatch(player_pattern2) do
         print("parseplayer address:"..address)
         print("parseplayer port:"..port)
-        table.insert(players, {peerAddress = address, peerPort = port})
+        table.insert(players, {peerAddress = address, peerPort = tonumber(port)})
     end
     return players
+end
+
+function JoinLobbyState:parseLobbyInfo(string)
+    print ("this is string in paseplayer"..string)
+    local lobbyState = {}
+    local player_pattern2 = "{([^,]+),(%d+),(%d+)}" --second pattern to account for colons
+    for state, playerCount, limit  in string:gmatch(player_pattern2) do
+        print("parse lobby state:"..state)
+        print("parse lobby player count:"..playerCount)
+        print("parse lobby player count:"..limit)
+        table.insert(lobbyState, {state = state, playerCount = tonumber(playerCount), limit = tonumber(limit)})
+    end
+    return lobbyState
 end
 
 
@@ -117,13 +133,18 @@ function JoinLobbyState:update(dt)
                 -- end
             elseif command == 'addNewLobby' then
                 print('should add')
-                local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(datastring)
+                local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(datastring,command)
                 print("Now create table: "..lobbyId)
                 print("Found in table: "..playerTable[1].peerPort)
                 -- reconstruct lobby and lobby order
                 self.lobbies[lobbyId] =  playerTable
                 table.insert(self.lobbyOrder,lobbyId)
-
+            elseif command == 'addLobbyState' then
+                local lobbyId, lobbyStateTable  = JoinLobbyState:parseLobbyData(datastring,command)
+                -- print("Now create table: "..lobbyId)
+                -- print("Found in table: "..playerTable[1].peerPort)
+                -- reconstruct lobby and lobby order
+                self.lobbyStates[lobbyId] =  lobbyStateTable
             elseif command == 'deleteLobby' then
                 print('delete lobby:')
                 print(type(datastring))
@@ -178,10 +199,10 @@ function JoinLobbyState:update(dt)
             gStateMachine:change('multiplayer-select-menu', {
                 highScores = self.highScores
             }, self.udp)
-        elseif highlighted == 2 then
-                gStateMachine:change('paddle-select', {
-                    highScores = self.highScores
-                }, self.udp)
+        else
+            gStateMachine:change('paddle-select', {
+                highScores = self.highScores
+            }, self.udp)
         end
     end
 
@@ -200,7 +221,7 @@ function JoinLobbyState:render()
     if self.menuCursor == -1 then
         love.graphics.setColor(103/255, 1, 1, 1)
     end
-    love.graphics.printf("back", 0, VIRTUAL_HEIGHT / 2 + 40, VIRTUAL_WIDTH - 150, 'center')
+    love.graphics.printf("back", 0, VIRTUAL_HEIGHT / 2 + 70, VIRTUAL_WIDTH - 300, 'center')
 
     love.graphics.setColor(1, 1, 1, 1)
 
@@ -211,7 +232,12 @@ function JoinLobbyState:render()
             if self.menuCursor == i then
                 love.graphics.setColor(103/255, 1, 1, 1)
             end
-            love.graphics.printf("lobby: ".. lobbyId, 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH, 'center')
+            love.graphics.printf("lobby: ".. lobbyId, 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH - 100, 'center')
+            if self.lobbyStates[lobbyId] then
+                love.graphics.printf(tostring(self.lobbyStates[lobbyId][1].playerCount).."/"
+                ..tostring(self.lobbyStates[lobbyId][1].limit), 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH + 100, 'center')
+            end
+            
             love.graphics.setColor(1, 1, 1, 1)
             -- add player info later
             spacing = spacing + 20
