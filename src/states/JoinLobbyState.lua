@@ -140,7 +140,6 @@ function JoinLobbyState:update(dt)
 
 
     if #self.lobbyOrder > 0 then
-        print('yes')
         if love.keyboard.wasPressed('up') then
             if self.menuCursor == 1 then
                 self.menuCursor = #self.lobbyOrder
@@ -213,6 +212,7 @@ function JoinLobbyState:render()
                 love.graphics.setColor(103/255, 1, 1, 1)
             end
             love.graphics.printf("lobby: ".. lobbyId, 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH, 'center')
+            love.graphics.setColor(1, 1, 1, 1)
             -- add player info later
             spacing = spacing + 20
         end
