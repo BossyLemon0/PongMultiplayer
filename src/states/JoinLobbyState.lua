@@ -61,7 +61,7 @@ function JoinLobbyState:parseLobbyData(data)
     -- print('lobby working here '..lobbyId)
     print(playersTable[1].peerAddress)
     -- print('player table has port: '..playersTable)
-    return lobbyId, playersTable
+    return tonumber(lobbyId), playersTable
 end
 
 function JoinLobbyState:parseLobbyId(string)
@@ -124,7 +124,16 @@ function JoinLobbyState:update(dt)
                 self.lobbies[lobbyId] =  playerTable
                 table.insert(self.lobbyOrder,lobbyId)
 
-                
+            elseif command == 'deleteLobby' then
+                print('delete lobby:')
+                print(type(datastring))
+                self.lobbies[tonumber(datastring)] = nil
+                for i, id in pairs(self.lobbyOrder) do
+                    if id == tonumber(datastring) then
+                        table.remove(self.lobbyOrder, i)
+                    end
+                end
+
             end
     end
 
@@ -196,7 +205,7 @@ function JoinLobbyState:render()
 
 
 
-    if #self.lobbyOrder then
+    -- if #self.lobbyOrder then
         for i, lobbyId in pairs(self.lobbyOrder) do
             if self.menuCursor == i then
                 love.graphics.setColor(103/255, 1, 1, 1)
@@ -205,9 +214,9 @@ function JoinLobbyState:render()
             -- add player info later
             spacing = spacing + 20
         end
-    else 
-        love.graphics.printf("Wow, so empty", 0, VIRTUAL_HEIGHT / 2 + spacing, VIRTUAL_WIDTH, 'center')
-    end
+    -- else 
+    --     love.graphics.printf("Wow, so empty", 0, VIRTUAL_HEIGHT / 2 + spacing, VIRTUAL_WIDTH, 'center')
+    -- end
 
 
     -- reset the color

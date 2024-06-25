@@ -53,11 +53,11 @@ function Network:AddLobby(peerAddress, peerPort, lobbyId)
     print('lobbies: '..self.lobbies[lobbyId].peerPort)
     Network:ShowLobbies()
     local datagram = 'lobby:' .. tostring(lobbyId) .. " {".. peerAddress ..','.. tostring(peerPort) .."}"
-    Network:updateLobbies(datagram)
+    Network:updateLobbies("addNewLobby", datagram)
     -- Maybe add code to push lobby information to all players on creation
 end
 
-function Network:updateLobbies(datagram)
+function Network:updateLobbies(func, datagram)
     for i, players in pairs(self.peers) do
         print("datagram to add new lobby sent: "..datagram)
         print('New lobby address type')
@@ -67,7 +67,7 @@ function Network:updateLobbies(datagram)
         print(type(players.peerPort))
         print("at port: "..players.peerPort)
         -- send the last datagram
-        self.udp:sendto(string.format("%s %s", "addNewLobby", datagram), players.peerAddress, tonumber(players.peerPort))
+        self.udp:sendto(string.format("%s %s", func, datagram), players.peerAddress, tonumber(players.peerPort))
     end
 end
 
@@ -80,6 +80,7 @@ function Network:DeleteLobby(lobbyId)
         end
     end
     Network:ShowLobbies()
+    Network:updateLobbies("deleteLobby",tostring(lobbyId))
 
 end
 
