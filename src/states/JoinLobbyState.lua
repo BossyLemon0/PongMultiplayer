@@ -104,7 +104,6 @@ function JoinLobbyState:update(dt)
         local command, datastring = data:match("^(%S+) (.+)$")
         print(command)
 
-        if #self.lobbyOrder < 1 then
             if command == 'initLobbies' then
                 
                 local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(datastring)
@@ -127,20 +126,6 @@ function JoinLobbyState:update(dt)
 
                 
             end
-        elseif #self.lobbyOrder >= 1 then
-            print('should add lobbies')
-            if command == 'addNewLobby' then
-                print('should add')
-                local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(datastring)
-                print("Now create table: "..lobbyId)
-                print("Found in table: "..playerTable[1].peerPort)
-                -- reconstruct lobby and lobby order
-                self.lobbies[lobbyId] =  playerTable
-                table.insert(self.lobbyOrder,lobbyId)
-            end
-        end
-
-
     end
 
 
