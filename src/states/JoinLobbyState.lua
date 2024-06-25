@@ -139,16 +139,17 @@ function JoinLobbyState:update(dt)
 
 
 
-    if #self.lobbies > 0 then
+    if #self.lobbyOrder > 0 then
+        print('yes')
         if love.keyboard.wasPressed('up') then
             if self.menuCursor == 1 then
-                self.menuCursor = #self.lobbies
+                self.menuCursor = #self.lobbyOrder
             else
                 self.menuCursor = self.menuCursor - 1
             end
             gSounds['paddle-hit']:play()
         elseif love.keyboard.wasPressed('down') then
-            if self.menuCursor == #self.lobbies then
+            if self.menuCursor == #self.lobbyOrder then
                 self.menuCursor = 1
             else
                 self.menuCursor = self.menuCursor + 1
@@ -162,6 +163,7 @@ function JoinLobbyState:update(dt)
             end
         elseif love.keyboard.wasPressed('right') then
             if self.menuCursor == -1 then
+                print('be on first lobby')
                 self.menuCursor = 1
             else
                 self.menuCursor = -1
@@ -173,8 +175,8 @@ function JoinLobbyState:update(dt)
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
         gSounds['confirm']:play()
 
-        if highlighted == 1 then
-            gStateMachine:change('paddle-select', {
+        if self.menuCursor == -1 then
+            gStateMachine:change('multiplayer-select-menu', {
                 highScores = self.highScores
             }, self.udp)
         elseif highlighted == 2 then
