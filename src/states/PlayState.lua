@@ -66,6 +66,7 @@ function PlayState:update(dt)
         return
     end
 
+
     -- update positions based on velocity
     self.paddle:update(dt)
 
@@ -117,6 +118,17 @@ function PlayState:update(dt)
     for key, ball in pairs(self.balls) do
         if ball.inPlay == true then
             ball:update(dt)
+        end
+        if love.keyboard.wasPressed('w') then
+            gStateMachine:change('victory', {
+                level = self.level,
+                paddle = self.paddle,
+                health = self.health,
+                score = self.score,
+                highScores = self.highScores,
+                ball = ball,
+                recoverPoints = self.recoverPoints
+            }, self.udp)
         end
     end
 

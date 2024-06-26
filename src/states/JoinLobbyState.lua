@@ -104,7 +104,6 @@ function JoinLobbyState:update(dt)
 
     self.testTimer = self.testTimer + dt
     if (self.testTimer > 3) then
-
         -- JoinLobbyState:requestLobbies(self.udp) Ba
         self.testTimer = 0
     end
@@ -149,6 +148,7 @@ function JoinLobbyState:update(dt)
                 print('delete lobby:')
                 print(type(datastring))
                 self.lobbies[tonumber(datastring)] = nil
+                self.lobbyStates[tonumber(datastring)] = nil
                 for i, id in pairs(self.lobbyOrder) do
                     if id == tonumber(datastring) then
                         table.remove(self.lobbyOrder, i)

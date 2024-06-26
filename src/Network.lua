@@ -82,6 +82,7 @@ end
 function Network:DeleteLobby(lobbyId)
     -- print("lobby being deleted: "..lobbyId)
     self.lobbies[lobbyId] = nil
+    self.lobbyStates[lobbyId] = nil
     for i, id in pairs(self.lobbyOrder) do
         if id == lobbyId then
             table.remove(self.lobbyOrder, i)

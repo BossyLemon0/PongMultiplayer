@@ -30,18 +30,23 @@ LevelMaker = Class{}
     possible ways of randomizing rows and columns of bricks. Calculates the
     brick colors and tiers to choose based on the level passed in.
 ]]
-function LevelMaker.createMap(level)
+function LevelMaker.createMap(level, multi)
     local bricks = {}
     local powers = {}
     local keypowers = {}
     local key = {}
     local keyPowerUp = -1
+    local numRows = 0
+    local numCols = 0
 
-    -- randomly choose the number of rows
-    local numRows = math.random(1, 5)
+    if multi then
+        numRows = math.random(1, 3)
+        numCols = math.random(3, 7)
+    else
+        numRows = math.random(1, 5)
+        numCols = math.random(7, 13)
+    end
 
-    -- randomly choose the number of columns, ensuring odd
-    local numCols = math.random(7, 13)
     numCols = numCols % 2 == 0 and (numCols + 1) or numCols
 
     -- highest possible spawned brick color in this level; ensure we
@@ -124,7 +129,8 @@ function LevelMaker.createMap(level)
                     + (13 - numCols) * 16,  -- left-side padding for when there are fewer than 13 columns
                     
                     -- y-coordinate
-                    y * 16                  -- just use y * 16, since we need top padding anyway
+                    y * 16,                -- just use y * 16, since we need top padding anyway
+                    multi
                 )
 
 

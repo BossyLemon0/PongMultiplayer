@@ -50,15 +50,21 @@ paletteColors = {
     }
 }
 
-function Brick:init(x, y)
+function Brick:init(x, y, multi)
     -- used for coloring and score calculation
     self.tier = 0
     self.color = 1
     
     self.x = x
-    self.y = y
+    self.y = y 
+    if multi then
+        self.y = self.y + 64
+    end
+
     self.width = 32
     self.height = 16
+    -- self.width = 16
+    -- self.height = 8
     
     -- used to determine whether this brick should be rendered
     self.inPlay = true
@@ -170,11 +176,11 @@ function Brick:render()
             -- multiply color by 4 (-1) to get our color offset, then add tier to that
             -- to draw the correct tier and color brick onto the screen
             gFrames['bricks'][1 + ((self.color - 1) * 4) + self.tier],
-            self.x, self.y)
+            self.x, self.y )
     elseif self.inPlay and self.isKey == true then
-        love.graphics.draw(gTextures['main'], 
+        love.graphics.draw(gTextures['main'],
             gFrames['keybricks'][1],
-            self.x, self.y)       
+            self.x, self.y )
     end
 end
 
