@@ -29,6 +29,7 @@ function JoinLobbyState:enter(params,udp)
     JoinLobbyState:requestLobbies(self, self.udp)
     -- print(self.udp:getpeername())
     self.testTimer = 0
+    self.NetworkUtil = NetworkUtil()
 end
 
 function JoinLobbyState:requestLobbies(self,udp)
@@ -121,7 +122,7 @@ function JoinLobbyState:update(dt)
 
             if command == 'initLobbies' then
                 
-                local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(datastring,command)
+                local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
                 print("Now create table: "..lobbyId)
                 print("Found in table: "..playerTable[1].peerPort)
                 -- reconstruct lobby and lobby order
@@ -132,18 +133,18 @@ function JoinLobbyState:update(dt)
                 -- end
             elseif command == 'initLobbyStates' then
                 print("from Init Lobbystates"..datastring)
-                local lobbyId, lobbyStateTable  = JoinLobbyState:parseLobbyData(datastring,command)
+                local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
                 self.lobbyStates[lobbyId] =  lobbyStateTable
             elseif command == 'addNewLobby' then
                 print('should add')
-                local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(datastring,command)
+                local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
                 print("Now create table: "..lobbyId)
                 print("Found in table: "..playerTable[1].peerPort)
                 -- reconstruct lobby and lobby order
                 self.lobbies[lobbyId] =  playerTable
                 table.insert(self.lobbyOrder,lobbyId)
             elseif command == 'addLobbyState' then
-                local lobbyId, lobbyStateTable  = JoinLobbyState:parseLobbyData(datastring,command)
+                local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
                 -- print("Now create table: "..lobbyId)
                 -- print("Found in table: "..playerTable[1].peerPort)
                 -- reconstruct lobby and lobby order
@@ -238,7 +239,6 @@ function JoinLobbyState:render()
             end
             love.graphics.printf("lobby: ".. lobbyId, 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH - 100, 'center')
             if self.lobbyStates[lobbyId] then
-                print(#self.lobbyStates[lobbyId])
                 love.graphics.printf(tostring(self.lobbyStates[lobbyId][1].playerCount).."/"
                 ..tostring(self.lobbyStates[lobbyId][1].limit), 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH + 100, 'center')
             end

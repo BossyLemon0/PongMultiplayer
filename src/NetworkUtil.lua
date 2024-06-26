@@ -1,20 +1,19 @@
 NetworkUtil = Class{}
 
-function NetworkUtil:init(skin)
+function NetworkUtil:init()
 
 end
 
 
 function NetworkUtil:parseLobbyData(data, command)
     local lobbyId = NetworkUtil:parseLobbyId(data)
-    if command == "addNewLobby" then
+    if command == "addNewLobby" or command == "initLobbies" then
         local playersTable = NetworkUtil:parsePlayerInfo(data)
         return tonumber(lobbyId), playersTable
-    elseif command == "addLobbyState" then
+    elseif command == "addLobbyState" or command == "initLobbyStates" then
         local statesTable = NetworkUtil:parseLobbyInfo(data)
         return tonumber(lobbyId), statesTable
     end
-
 end
 
 function NetworkUtil:parseLobbyId(string)
