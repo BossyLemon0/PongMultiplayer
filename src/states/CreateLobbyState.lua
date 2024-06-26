@@ -60,10 +60,9 @@ function CreateLobbyState:update(dt)
         gSounds['confirm']:play()
 
         if highlighted == 1 then
-            
-
             gStateMachine:change('wait-for-players', {
                 highScores = self.highScores,
+                multi = true,
                 lobbyId = CreateLobbyState:CreateInfo(self.udp)
             }, self.udp)
         elseif highlighted == 2 then

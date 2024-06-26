@@ -16,6 +16,11 @@ PaddleSelectState = Class{__includes = BaseState}
 
 function PaddleSelectState:enter(params, udp)
     self.highScores = params.highScores
+    self.isMulti = params.multi
+    self.lobbyId = params.lobbyId
+    self.lobbies = {}
+    self.lobbyStates = {}
+    self.lobbyOrder = {}
     self.udp = udp
 end
 

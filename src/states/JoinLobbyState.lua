@@ -57,10 +57,10 @@ end
 
 function JoinLobbyState:parseLobbyData(data, command)
     local lobbyId = JoinLobbyState:parseLobbyId(data)
-    if command == "addNewLobby" then
+    if command == "addNewLobby" or command == "initLobbies" then
         local playersTable = JoinLobbyState:parsePlayerInfo(data)
         return tonumber(lobbyId), playersTable
-    elseif command == "addLobbyState" then
+    elseif command == "addLobbyState" or command == "initLobbyStates" then
         local statesTable = JoinLobbyState:parseLobbyInfo(data)
         return tonumber(lobbyId), statesTable
     end
@@ -87,7 +87,7 @@ function JoinLobbyState:parsePlayerInfo(string)
 end
 
 function JoinLobbyState:parseLobbyInfo(string)
-    print ("this is string in paseplayer"..string)
+    print ("this is string in parse Lobby Info"..string)
     local lobbyState = {}
     local player_pattern2 = "{([^,]+),(%d+),(%d+)}" --second pattern to account for colons
     for state, playerCount, limit  in string:gmatch(player_pattern2) do
@@ -121,7 +121,7 @@ function JoinLobbyState:update(dt)
 
             if command == 'initLobbies' then
                 
-                local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(datastring)
+                local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(datastring,command)
                 print("Now create table: "..lobbyId)
                 print("Found in table: "..playerTable[1].peerPort)
                 -- reconstruct lobby and lobby order
@@ -130,6 +130,10 @@ function JoinLobbyState:update(dt)
                 -- for i, player in pairs(playerTable) do
                 --     table.insert(self.lobbies[lobbyId], playerTable)
                 -- end
+            elseif command == 'initLobbyStates' then
+                print("from Init Lobbystates"..datastring)
+                local lobbyId, lobbyStateTable  = JoinLobbyState:parseLobbyData(datastring,command)
+                self.lobbyStates[lobbyId] =  lobbyStateTable
             elseif command == 'addNewLobby' then
                 print('should add')
                 local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(datastring,command)
@@ -234,6 +238,7 @@ function JoinLobbyState:render()
             end
             love.graphics.printf("lobby: ".. lobbyId, 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH - 100, 'center')
             if self.lobbyStates[lobbyId] then
+                print(#self.lobbyStates[lobbyId])
                 love.graphics.printf(tostring(self.lobbyStates[lobbyId][1].playerCount).."/"
                 ..tostring(self.lobbyStates[lobbyId][1].limit), 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH + 100, 'center')
             end
