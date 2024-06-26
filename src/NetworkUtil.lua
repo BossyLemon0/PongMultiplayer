@@ -10,8 +10,12 @@ function NetworkUtil:parseLobbyData(data, command)
     if command == "addNewLobby" or command == "initLobbies" then
         local playersTable = NetworkUtil:parsePlayerInfo(data)
         return tonumber(lobbyId), playersTable
-    elseif command == "addLobbyState" or command == "initLobbyStates" then
+    elseif command == "addLobbyStates" or command == "initLobbyStates" then
         local statesTable = NetworkUtil:parseLobbyInfo(data)
+        if command == 'addLobbyStates' then
+            print(" WEEEEE WOOOOO")
+            print(statesTable.state)
+        end
         return tonumber(lobbyId), statesTable
     end
 end

@@ -61,6 +61,7 @@ function CreateLobbyState:update(dt)
         gSounds['confirm']:play()
 
         if highlighted == 1 then
+            -- paddle-select
             gStateMachine:change('wait-for-players', {
                 highScores = self.highScores,
                 multi = true,

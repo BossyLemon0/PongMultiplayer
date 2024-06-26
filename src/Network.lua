@@ -61,7 +61,7 @@ function Network:AddLobby(peerAddress, peerPort, lobbyId)
     .. self.lobbyStates[lobbyId].playerCount..","
     ..self.lobbyStates[lobbyId].limit.."}"
     Network:updateLobbies("addNewLobby", lobbyDatagram)
-    Network:updateLobbies("addLobbyState", lobbyStateDatagram)
+    Network:updateLobbies("addLobbyStates", lobbyStateDatagram)
     -- Maybe add code to push lobby information to all players on creation
 end
 
@@ -117,6 +117,22 @@ function Network:SendLobbiesInOrder(userIp, userPort)
     end
 end
 
+function Network:SendLobbyById(lobbyId, userIp, userPort)
+    local lobbyDatagram = Network:createDatagram('getLobbyAt',lobbyId)
+    local lobbyStateDatagram = Network:createDatagram('getLobbyStateAt',lobbyId)
+    print('ip type')
+    print(type(userIp))
+    print(userIp)
+    print('port type')
+    print(type(userPort))
+    print(userPort)
+
+        print("datagram sent: "..lobbyDatagram)
+        self.udp:sendto(string.format("%s %s", "initLobby", lobbyDatagram), userIp, userPort)
+        print("datagram sent: "..lobbyStateDatagram)
+        self.udp:sendto(string.format("%s %s", "initLobbyState", lobbyStateDatagram), userIp, userPort)
+end
+
 function Network:createDatagram(query, payload)
 
 
@@ -164,6 +180,41 @@ function Network:createDatagram(query, payload)
             -- lobby = ''
         end
         return datagrams
+    elseif query == "getLobbyAt" then
+        local lobbyString =  ''
+        print(self.lobbies[payload])
+        print(self.lobbies[tonumber(payload)])
+        local lobby = self.lobbies[tonumber(payload)]
+        print(lobby.lobbyId)
+        print(lobby.peerAddress)
+        lobbyString = lobbyString .. "lobby:" .. tostring(lobby.lobbyId)
+
+        if lobby[1] then
+            for i, player in pairs(lobby) do
+                lobbyString = lobbyString ..
+                " {".. player.peerAddress.. ','
+                .. tostring(player.peerPort)..
+                "}"
+            end
+        else
+            lobbyString = lobbyString ..
+            " {".. lobby.peerAddress.. ','
+            .. tostring(lobby.peerPort)..
+            "}"
+        end
+
+        return lobbyString
+    elseif query == "getLobbyStateAt" then
+        local lobbyId = tonumber(payload)
+        local lobbyStateString = ''
+        lobbyStateString = lobbyStateString .. "lobby:" .. payload
+        lobbyStateString = lobbyStateString ..
+        " {"..self.lobbyStates[tonumber(payload)].state.. ','
+        .. tostring(self.lobbyStates[lobbyId].playerCount)..','
+        .. tostring(self.lobbyStates[lobbyId].limit)..
+        "}"
+
+        return lobbyStateString
     end
 
 end
@@ -206,7 +257,7 @@ function Network:update(dt)
                 elseif entity == 'lobby' then
                     local peerHost, peerPort, lobbyId = string.match(parms, "([^%s]+) (%d+) (%d+)")
                     print('host is: '.. peerHost .." port is: ".. peerPort)
-                    Network:AddLobby(peerHost, peerPort, lobbyId)
+                    Network:AddLobby(peerHost, tonumber(peerPort), tonumber(lobbyId))
                 end
             elseif entitycmd == 'delete' then
                 if entity == 'lobby' then
@@ -221,6 +272,8 @@ function Network:update(dt)
                 if entitycmd == 'order_by_when_created' then
                     Network:SendLobbiesInOrder(msg_or_ip, port_or_nil)
                 end
+            elseif entity =='lobby' then
+                Network:SendLobbyById(entitycmd, msg_or_ip, port_or_nil)
             end
         end
     -- elseif msg_or_ip ~= 'timeout' then

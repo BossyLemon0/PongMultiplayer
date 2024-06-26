@@ -56,8 +56,6 @@ function JoinLobbyState:requestLobbies(self,udp)
 
 end
 
-
-
 function JoinLobbyState:update(dt)
 
     self.testTimer = self.testTimer + dt
@@ -100,7 +98,7 @@ function JoinLobbyState:update(dt)
                 -- reconstruct lobby and lobby order
                 self.lobbies[lobbyId] =  playerTable
                 table.insert(self.lobbyOrder,lobbyId)
-            elseif command == 'addLobbyState' then
+            elseif command == 'addLobbyStates' then
                 local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
                 -- print("Now create table: "..lobbyId)
                 -- print("Found in table: "..playerTable[1].peerPort)
@@ -119,7 +117,6 @@ function JoinLobbyState:update(dt)
 
             end
     end
-
 
 
     if #self.lobbyOrder > 0 then

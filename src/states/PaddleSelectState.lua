@@ -18,10 +18,12 @@ function PaddleSelectState:enter(params, udp)
     self.highScores = params.highScores
     self.isMulti = params.multi
     self.lobbyId = params.lobbyId
-    self.lobbies = {}
-    self.lobbyStates = {}
+    self.lobby = {}
+    self.lobbyState = {}
     self.lobbyOrder = {}
     self.udp = udp
+    PaddleSelectState:requestLobbyInfo(self, self.udp)
+    self.NetworkUtil = NetworkUtil()
 end
 
 function PaddleSelectState:init()
@@ -30,7 +32,61 @@ function PaddleSelectState:init()
     self.currentPaddle = 1
 end
 
+function PaddleSelectState:requestLobbyInfo(self,udp)
+    local address, port = udp:getsockname()
+    local requestLobbies = string.format("%s %s %d %s %d", "lobby", 'request', self.lobbyId , address, port)
+    udp:send(requestLobbies)
+end
+
 function PaddleSelectState:update(dt)
+
+    local data, msg = udp:receive()
+
+    if data then
+        -- ^(%S+): Matches one or more non-whitespace characters at the start of the string and captures them in command.
+        -- (.+)$: Matches one or more characters until the end of the string and captures them in datastring. 
+        print('you received the data')
+        print(data)
+        local command, datastring = data:match("^(%S+) (.+)$")
+        print(command)
+
+            if command == 'initLobby' then
+                local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
+                print("Now create table: "..lobbyId)
+                print("Found in table: "..playerTable[1].peerPort)
+                -- reconstruct lobby and lobby order
+                self.lobby =  playerTable
+            elseif command == 'initLobbyState' then
+                print("from Init Lobbystate"..datastring)
+                local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
+                self.lobbyState =  lobbyStateTable
+            elseif command == 'addNewPlayer' then
+                print('should add new player')
+                local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
+                print("Now create table: "..lobbyId)
+                print("Found in table: "..playerTable[1].peerPort)
+                -- reconstruct lobby and lobby order
+                self.lobbies[lobbyId] =  playerTable
+                table.insert(self.lobbyOrder,lobbyId)
+            elseif command == 'updateLobbyState' then
+                local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
+                -- reconstruct lobby and lobby order
+                self.lobbyStates[lobbyId] =  lobbyStateTable
+            elseif command == 'disconnectPlayer' then
+                print('disconnected player:')
+                print(type(datastring))
+                self.lobbies[tonumber(datastring)] = nil
+                self.lobbyStates[tonumber(datastring)] = nil
+                for i, id in pairs(self.lobbyOrder) do
+                    if id == tonumber(datastring) then
+                        table.remove(self.lobbyOrder, i)
+                    end
+                end
+
+            end
+    end
+
+
     if love.keyboard.wasPressed('left') then
         if self.currentPaddle == 1 then
             gSounds['no-select']:play()
@@ -74,6 +130,16 @@ function PaddleSelectState:update(dt)
 end
 
 function PaddleSelectState:render()
+    -- lobby state
+    if self.isMulti then
+        love.graphics.setFont(gFonts['small'])
+        love.graphics.printf("Waiting...", 0, VIRTUAL_HEIGHT / 7,
+            VIRTUAL_WIDTH - 200, 'center')
+
+            love.graphics.setFont(gFonts['small'])
+            love.graphics.printf("Waiting...", 0, VIRTUAL_HEIGHT / 7,
+                VIRTUAL_WIDTH + 200, 'center')
+    end
     -- instructions
     love.graphics.setFont(gFonts['medium'])
     love.graphics.printf("Select your paddle with left and right!", 0, VIRTUAL_HEIGHT / 4,
