@@ -33,14 +33,15 @@ function PaddleSelectState:init()
 end
 
 function PaddleSelectState:requestLobbyInfo(self,udp)
+    print('sending')
     local address, port = udp:getsockname()
-    local requestLobbies = string.format("%s %s %d %s %d", "lobby", 'request', self.lobbyId , address, port)
-    udp:send(requestLobbies)
+    local requestLobby = string.format("%s %s %d %s %d", "lobby", 'request', self.lobbyId , address, port)
+    udp:send(requestLobby)
 end
 
 function PaddleSelectState:update(dt)
 
-    local data, msg = udp:receive()
+    local data, msg = self.udp:receive()
 
     if data then
         -- ^(%S+): Matches one or more non-whitespace characters at the start of the string and captures them in command.
@@ -120,7 +121,11 @@ function PaddleSelectState:update(dt)
             score = 0,
             highScores = self.highScores,
             level = INIT_LEVEL,
-            recoverPoints = 5000
+            recoverPoints = 5000,
+            isMulti = self.multi,
+            lobbyId = self.lobbyId,
+            lobby = self.lobby ,
+            lobbyState = self.lobbyState,
         }, self.udp)
     end
 
@@ -131,13 +136,13 @@ end
 
 function PaddleSelectState:render()
     -- lobby state
-    if self.isMulti then
+    if self.isMulti and self.lobbyState[1] then
         love.graphics.setFont(gFonts['small'])
         love.graphics.printf("Waiting...", 0, VIRTUAL_HEIGHT / 7,
             VIRTUAL_WIDTH - 200, 'center')
 
             love.graphics.setFont(gFonts['small'])
-            love.graphics.printf("Waiting...", 0, VIRTUAL_HEIGHT / 7,
+            love.graphics.printf(self.lobbyState[1].playerCount.."/"..self.lobbyState[1].limit , 0, VIRTUAL_HEIGHT / 7,
                 VIRTUAL_WIDTH + 200, 'center')
     end
     -- instructions

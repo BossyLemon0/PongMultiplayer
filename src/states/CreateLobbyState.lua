@@ -62,7 +62,8 @@ function CreateLobbyState:update(dt)
 
         if highlighted == 1 then
             -- paddle-select
-            gStateMachine:change('wait-for-players', {
+            -- wait-for-players
+            gStateMachine:change('paddle-select', {
                 highScores = self.highScores,
                 multi = true,
                 lobbyId = CreateLobbyState:CreateInfo(self.udp)

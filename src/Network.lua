@@ -127,9 +127,9 @@ function Network:SendLobbyById(lobbyId, userIp, userPort)
     print(type(userPort))
     print(userPort)
 
-        print("datagram sent: "..lobbyDatagram)
+        print("datagram sent for 1 ID:"..lobbyDatagram)
         self.udp:sendto(string.format("%s %s", "initLobby", lobbyDatagram), userIp, userPort)
-        print("datagram sent: "..lobbyStateDatagram)
+        print("datagram sent for 1 ID: "..lobbyStateDatagram)
         self.udp:sendto(string.format("%s %s", "initLobbyState", lobbyStateDatagram), userIp, userPort)
 end
 
@@ -209,7 +209,7 @@ function Network:createDatagram(query, payload)
         local lobbyStateString = ''
         lobbyStateString = lobbyStateString .. "lobby:" .. payload
         lobbyStateString = lobbyStateString ..
-        " {"..self.lobbyStates[tonumber(payload)].state.. ','
+        " {"..self.lobbyStates[lobbyId].state.. ','
         .. tostring(self.lobbyStates[lobbyId].playerCount)..','
         .. tostring(self.lobbyStates[lobbyId].limit)..
         "}"

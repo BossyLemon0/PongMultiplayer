@@ -7,10 +7,10 @@ end
 
 function NetworkUtil:parseLobbyData(data, command)
     local lobbyId = NetworkUtil:parseLobbyId(data)
-    if command == "addNewLobby" or command == "initLobbies" then
+    if command == "addNewLobby" or command == "initLobbies" or command == "initLobby" then
         local playersTable = NetworkUtil:parsePlayerInfo(data)
         return tonumber(lobbyId), playersTable
-    elseif command == "addLobbyStates" or command == "initLobbyStates" then
+    elseif command == "addLobbyStates" or command == "initLobbyStates" or command == "initLobbyState" then
         local statesTable = NetworkUtil:parseLobbyInfo(data)
         if command == 'addLobbyStates' then
             print(" WEEEEE WOOOOO")
