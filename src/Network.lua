@@ -93,9 +93,31 @@ function Network:DeleteLobby(lobbyId)
 
 end
 
-function Network:JoinLobbies(peerAddress, peerPort, lobbyId)
-    table.insert(self.lobbies[lobbyId], {peerAddress = peerAddress, peerPort = peerPort})
+function Network:updatePlayersInLobby(playerfunc, lobbystatefun, playerdatagram, lobbystatedatagram, lobbyId)
+    for i, players in pairs(self.lobbies[lobbyId]) do
+        -- print("datagram to add new lobby sent: "..datagram)
+        print(lobbystatedatagram)
+        print(playerdatagram)
+        -- send the last datagram
+        self.udp:sendto(string.format("%s %s", playerfunc, lobbystatefun), players.peerAddress, tonumber(players.peerPort))
+        self.udp:sendto(string.format("%s %s", playerdatagram, lobbystatedatagram), players.peerAddress, tonumber(players.peerPort))
+    end
 end
+
+function Network:JoinLobbyById(lobbyId, peerAddress, peerPort)
+    local lobbyDatagram = Network:createDatagram('getLobbyAt',lobbyId)
+    local lobbyStateDatagram = Network:createDatagram('getLobbyStateAt',lobbyId)
+    table.insert(self.lobbies[lobbyId], {peerAddress = peerAddress, peerPort = peerPort})
+    self.lobbyStates[lobbyId].playerCount = self.lobbyStates[lobbyId].playerCount + 1
+    Network:updatePlayersInLobby('updateLobby', lobbyDatagram, "updateLobbyState", lobbyStateDatagram, lobbyId)
+    
+end
+
+function Network:JoinLobbyByIdOriginal(lobbyId, peerAddress, peerPort)
+    table.insert(self.lobbies[lobbyId], {peerAddress = peerAddress, peerPort = peerPort})
+    
+end
+
 
 function Network:SendLobbiesInOrder(userIp, userPort)
     local lobbyDatagramTable = Network:createDatagram('getAllLobies')
@@ -258,6 +280,10 @@ function Network:update(dt)
                     local peerHost, peerPort, lobbyId = string.match(parms, "([^%s]+) (%d+) (%d+)")
                     print('host is: '.. peerHost .." port is: ".. peerPort)
                     Network:AddLobby(peerHost, tonumber(peerPort), tonumber(lobbyId))
+                elseif entity == 'player' then -- IN PROGRESSS
+                    local peerHost, peerPort = string.match(parms, "([^%s]+) (%d+)")
+                    -- entity command is the lobbyId in string
+                    Network:JoinLobbyById(tonumber(entitycmd), msg_or_ip, port_or_nil)
                 end
             elseif entitycmd == 'delete' then
                 if entity == 'lobby' then
@@ -273,7 +299,7 @@ function Network:update(dt)
                     Network:SendLobbiesInOrder(msg_or_ip, port_or_nil)
                 end
             elseif entity =='lobby' then
-                Network:SendLobbyById(entitycmd, msg_or_ip, port_or_nil)
+                Network:SendLobbyById(tonumber(entitycmd), msg_or_ip, port_or_nil) --dont touch dumbass
             end
         end
     -- elseif msg_or_ip ~= 'timeout' then

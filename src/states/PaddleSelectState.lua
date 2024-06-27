@@ -136,6 +136,9 @@ end
 
 function PaddleSelectState:render()
     -- lobby state
+    -- if self.isMulti then
+    --     print(#self.lobbyState)
+    -- end
     if self.isMulti and self.lobbyState[1] then
         love.graphics.setFont(gFonts['small'])
         love.graphics.printf("Waiting...", 0, VIRTUAL_HEIGHT / 7,

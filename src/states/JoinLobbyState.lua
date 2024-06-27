@@ -159,8 +159,14 @@ function JoinLobbyState:update(dt)
                 highScores = self.highScores
             }, self.udp)
         else
+            --update players at table
+            local address, port = self.udp:getsockname()
+            local AddPlayerTolobby = string.format("%s %s %d %s %d", "player", 'add', self.lobbyOrder[self.menuCursor], address, port)
+            self.udp:send(AddPlayerTolobby)
             gStateMachine:change('paddle-select', {
-                highScores = self.highScores
+                highScores = self.highScores,
+                lobbyId = self.lobbyOrder[self.menuCursor],
+                multi = true,
             }, self.udp)
         end
     end
