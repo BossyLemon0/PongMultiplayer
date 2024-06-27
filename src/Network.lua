@@ -158,23 +158,19 @@ function Network:createDatagram(query, payload)
     if query == "getAllLobies" then
         local datagrams = {}
         for orderId, lobbyid in pairs(self.lobbyOrder) do
+
             local lobbystring = ''
             local lobby = self.lobbies[lobbyid]
-            lobbystring = lobbystring .. "lobby:" .. tostring(lobby.lobbyId)
-            lobbystring = lobbystring ..
-            " {".. lobby.peerAddress.. ','
-            .. tostring(lobby.peerPort)..
-            "}"
-    
+            lobbystring = lobbystring .. "lobby:" .. tostring(lobbyid)
             print(lobbystring)
     
             if lobby[1] then
                 for _, player in pairs(lobby) do
-                    print("this is player:"..player)
+                    print("this is player:"..player.peerAddress)
                     lobbystring = lobbystring ..
-                    " {".. player[1] .. ','
-                    .. tostring(player[2]).. ','..
-                    "}" 
+                    " {".. player.peerAddress .. ','
+                    .. tostring(player.peerPort)..
+                    "}"
                 end
             end
     
@@ -186,9 +182,8 @@ function Network:createDatagram(query, payload)
         local datagrams = {}
         for orderId, lobbyid in pairs(self.lobbyOrder) do
             local lobbystring = ''
-            local lobby = self.lobbies[lobbyid]
             local lobbyState = self.lobbyStates[lobbyid]
-            lobbystring = lobbystring .. "lobby:" .. tostring(lobby.lobbyId)
+            lobbystring = lobbystring .. "lobby:" .. tostring(lobbyid)
             lobbystring = lobbystring ..
             " {".. lobbyState.state.. ','
             .. tostring(lobbyState.playerCount)..','
@@ -201,7 +196,7 @@ function Network:createDatagram(query, payload)
         return datagrams
     elseif query == "getLobbyAt" then
         local lobbyString =  ''
-        print("---------------------------------- HEEERREEEE START___________________________________")
+
         print(self.lobbies[payload])
         print(self.lobbies[tonumber(payload)])
         local lobby = self.lobbies[tonumber(payload)]
@@ -216,8 +211,6 @@ function Network:createDatagram(query, payload)
             end
         else
         end
-        print(lobbyString)
-        print("---------------------------------- HEEERREEEE ENDD___________________________________")
         return lobbyString
     elseif query == "getLobbyStateAt" then
         local lobbyId = tonumber(payload)
