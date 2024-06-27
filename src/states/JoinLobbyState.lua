@@ -37,23 +37,6 @@ function JoinLobbyState:requestLobbies(self,udp)
     local requestLobbies = string.format("%s %s %s %s %d", "lobbies", 'request', 'order_by_when_created' , address, port)
     udp:send(requestLobbies)
 
-    -- repeat
-    --     local data, msg = udp:receive()
-
-    --     if data then
-    --         print('theres data'.. data)
-    --         local lobbyId, playerTable  = JoinLobbyState:parseLobbyData(data)
-    --         print("Now create table: "..lobbyId)
-    --         print("Found in table: "..playerTable[1].peerPort)
-    --         -- reconstruct lobby and lobby order
-    --         self.lobbies[lobbyId] =  playerTable
-    --         table.insert(self.lobbyOrder,lobbyId)
-    --         -- for i, player in pairs(playerTable) do
-    --         --     table.insert(self.lobbies[lobbyId], playerTable)
-    --         -- end
-    --     end
-    -- until not data
-
 end
 
 function JoinLobbyState:update(dt)
@@ -76,16 +59,13 @@ function JoinLobbyState:update(dt)
         print(command)
 
             if command == 'initLobbies' then
-                
                 local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
                 print("Now create table: "..lobbyId)
                 print("Found in table: "..playerTable[1].peerPort)
                 -- reconstruct lobby and lobby order
-                self.lobbies[lobbyId] =  playerTable
+                self.lobbies[lobbyId] = {}
+                table.insert(self.lobbies[lobbyId],  playerTable)
                 table.insert(self.lobbyOrder,lobbyId)
-                -- for i, player in pairs(playerTable) do
-                --     table.insert(self.lobbies[lobbyId], playerTable)
-                -- end
             elseif command == 'initLobbyStates' then
                 print("from Init Lobbystates"..datastring)
                 local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
@@ -96,7 +76,8 @@ function JoinLobbyState:update(dt)
                 print("Now create table: "..lobbyId)
                 print("Found in table: "..playerTable[1].peerPort)
                 -- reconstruct lobby and lobby order
-                self.lobbies[lobbyId] =  playerTable
+                self.lobbies[lobbyId] = {}
+                table.insert(self.lobbies[lobbyId],  playerTable)
                 table.insert(self.lobbyOrder,lobbyId)
             elseif command == 'addLobbyStates' then
                 local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)

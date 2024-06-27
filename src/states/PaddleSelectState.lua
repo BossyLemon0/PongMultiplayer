@@ -57,22 +57,31 @@ function PaddleSelectState:update(dt)
                 print("Found in table: "..playerTable[1].peerPort)
                 -- reconstruct lobby and lobby order
                 self.lobby =  playerTable
+                print(self.lobby[1].peerPort)
+
             elseif command == 'initLobbyState' then
                 print("from Init Lobbystate"..datastring)
                 local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
-                self.lobbyState =  lobbyStateTable
+                self.lobbyState =  lobbyStateTable[1]
+
+                print(self.lobbyState.state)
+                print(self.lobbyState.limit)
+
             elseif command == 'addNewPlayer' then
                 print('should add new player')
                 local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
-                print("Now create table: "..lobbyId)
-                print("Found in table: "..playerTable[1].peerPort)
+                print(playerTable)
                 -- reconstruct lobby and lobby order
-                self.lobbies[lobbyId] =  playerTable
-                table.insert(self.lobbyOrder,lobbyId)
+                self.lobby =  playerTable
             elseif command == 'updateLobbyState' then
+                print('-----------------------------heeeeeeeeeerrrrrrrrrrrrreeeeeee------------------------------')
+                print(datastring)
                 local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
+                print(lobbyStateTable)
+
                 -- reconstruct lobby and lobby order
-                self.lobbyStates[lobbyId] =  lobbyStateTable
+                self.lobbyState =  lobbyStateTable[1]
+                print('-----------------------------heeeeeeeeeerrrrrrrrrrrrreeeeeee------------------------------')
             elseif command == 'disconnectPlayer' then
                 print('disconnected player:')
                 print(type(datastring))
@@ -139,13 +148,13 @@ function PaddleSelectState:render()
     -- if self.isMulti then
     --     print(#self.lobbyState)
     -- end
-    if self.isMulti and self.lobbyState[1] then
+    if self.isMulti and self.lobbyState.state then
         love.graphics.setFont(gFonts['small'])
         love.graphics.printf("Waiting...", 0, VIRTUAL_HEIGHT / 7,
             VIRTUAL_WIDTH - 200, 'center')
 
             love.graphics.setFont(gFonts['small'])
-            love.graphics.printf(self.lobbyState[1].playerCount.."/"..self.lobbyState[1].limit , 0, VIRTUAL_HEIGHT / 7,
+            love.graphics.printf(self.lobbyState.playerCount.."/"..self.lobbyState.limit , 0, VIRTUAL_HEIGHT / 7,
                 VIRTUAL_WIDTH + 200, 'center')
     end
     -- instructions

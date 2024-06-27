@@ -7,15 +7,11 @@ end
 
 function NetworkUtil:parseLobbyData(data, command)
     local lobbyId = NetworkUtil:parseLobbyId(data)
-    if command == "addNewLobby" or command == "initLobbies" or command == "initLobby" then
+    if command == "addNewLobby" or command == "initLobbies" or command == "initLobby" or command == 'addNewPlayer' then
         local playersTable = NetworkUtil:parsePlayerInfo(data)
         return tonumber(lobbyId), playersTable
-    elseif command == "addLobbyStates" or command == "initLobbyStates" or command == "initLobbyState" then
+    elseif command == "addLobbyStates" or command == "initLobbyStates" or command == "initLobbyState" or command == "updateLobbyState" then
         local statesTable = NetworkUtil:parseLobbyInfo(data)
-        if command == 'addLobbyStates' then
-            print(" WEEEEE WOOOOO")
-            print(statesTable.state)
-        end
         return tonumber(lobbyId), statesTable
     end
 end
@@ -40,13 +36,13 @@ function NetworkUtil:parsePlayerInfo(string)
 end
 
 function NetworkUtil:parseLobbyInfo(string)
-    print ("this is string in paseplayer"..string)
+    print ("this is string in paseLobby"..string)
     local lobbyState = {}
     local player_pattern2 = "{([^,]+),(%d+),(%d+)}" --second pattern to account for colons
     for state, playerCount, limit  in string:gmatch(player_pattern2) do
         print("parse lobby state:"..state)
         print("parse lobby player count:"..playerCount)
-        print("parse lobby player count:"..limit)
+        print("parse lobby player limit:"..limit)
         table.insert(lobbyState, {state = state, playerCount = tonumber(playerCount), limit = tonumber(limit)})
     end
     return lobbyState

@@ -95,16 +95,16 @@ function Network:DeleteLobby(lobbyId)
 end
 -- IN PROGRESS
 function Network:updatePlayersInLobby(playerfunc, playerdatagram, lobbystatefunc, lobbystatedatagram, lobbyId)
-    -- for i, players in pairs(self.lobbies[lobbyId]) do
-    --     -- print("datagram to add new lobby sent: "..datagram)
-    --     print(lobbystatedatagram)
-    --     print(playerdatagram)
-    --     -- send the last datagram
-    --     -- self.udp:sendto(string.format("%s %s", playerfunc, lobbystatefunc), players.peerAddress, tonumber(players.peerPort))
-    --     -- self.udp:sendto(string.format("%s %s", playerdatagram, lobbystatedatagram), players.peerAddress, tonumber(players.peerPort))
-    -- end
+    for i, players in pairs(self.lobbies[lobbyId]) do
+        -- print("datagram to add new lobby sent: "..datagram)
+        print(lobbystatedatagram)
+        print(playerdatagram)
+        -- send the current state and players
+        self.udp:sendto(string.format("%s %s", playerfunc, playerdatagram), players.peerAddress, tonumber(players.peerPort))
+        self.udp:sendto(string.format("%s %s", lobbystatefunc, lobbystatedatagram), players.peerAddress, tonumber(players.peerPort))
+    end
 end
-
+-- IN PROGRESS
 function Network:AddPlayerToLobbyByID(lobbyId, peerAddress, peerPort)
     table.insert(self.lobbies[lobbyId], {peerAddress = peerAddress, peerPort = peerPort})
     self.lobbyStates[lobbyId].playerCount = self.lobbyStates[lobbyId].playerCount + 1
@@ -112,12 +112,12 @@ function Network:AddPlayerToLobbyByID(lobbyId, peerAddress, peerPort)
     local lobbyStateDatagram = Network:createDatagram('getLobbyStateAt',lobbyId)
 
     print('about to update')
-    Network:updatePlayersInLobby('updateLobby', lobbyDatagram, "updateLobbyState", lobbyStateDatagram, lobbyId)
+    Network:updatePlayersInLobby('addNewPlayer', lobbyDatagram, "updateLobbyState", lobbyStateDatagram, lobbyId)
     
 end
-
+--SOLID IT SEEMS
 function Network:SendLobbiesInOrder(userIp, userPort)
-    local lobbyDatagramTable = Network:createDatagram('getAllLobies')
+    local lobbyDatagramTable = Network:createDatagram('getAllLobbies')
     local lobbyStateDatagramTable = Network:createDatagram('getAllLobbyStates')
     print('ip type')
     print(type(userIp))
@@ -155,7 +155,7 @@ end
 function Network:createDatagram(query, payload)
 
 
-    if query == "getAllLobies" then
+    if query == "getAllLobbies" then
         local datagrams = {}
         for orderId, lobbyid in pairs(self.lobbyOrder) do
 
