@@ -42,6 +42,7 @@ require 'src/StateMachine'
 -- of differing sizes for paddles, balls, bricks, etc.
 require 'src/Util'
 require 'src/NetworkUtil'
+require 'src/Test'
 
 --Network code
 require 'src/Network'

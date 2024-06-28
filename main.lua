@@ -48,6 +48,7 @@ function love.load()
 
     --network code
     Network:Init()
+    Test:Init()
     udp = socket.udp()
     udp:settimeout(0)
 
@@ -164,8 +165,8 @@ function love.load()
 
 
     -- play our music outside of all states and set it to looping
-    gSounds['music']:play()
-    gSounds['music']:setLooping(true)
+    -- gSounds['music']:play()
+    -- gSounds['music']:setLooping(true)
 
     -- a table we'll use to keep track of which keys have been pressed this
     -- frame, to get around the fact that LÖVE's default callback won't let us

@@ -21,9 +21,12 @@ function PaddleSelectState:enter(params, udp)
     self.lobby = {}
     self.lobbyState = {}
     self.lobbyOrder = {}
-    self.udp = udp
-    PaddleSelectState:requestLobbyInfo(self, self.udp)
-    self.NetworkUtil = NetworkUtil()
+    if self.isMulti then
+        self.udp = udp
+        PaddleSelectState:requestLobbyInfo(self, self.udp)
+        self.NetworkUtil = NetworkUtil()
+    end
+
 end
 
 function PaddleSelectState:init()
@@ -41,6 +44,7 @@ end
 
 function PaddleSelectState:update(dt)
 
+if self.isMulti then
     local data, msg = self.udp:receive()
 
     if data then
@@ -74,14 +78,12 @@ function PaddleSelectState:update(dt)
                 -- reconstruct lobby and lobby order
                 self.lobby =  playerTable
             elseif command == 'updateLobbyState' then
-                print('-----------------------------heeeeeeeeeerrrrrrrrrrrrreeeeeee------------------------------')
                 print(datastring)
                 local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
                 print(lobbyStateTable)
 
                 -- reconstruct lobby and lobby order
                 self.lobbyState =  lobbyStateTable[1]
-                print('-----------------------------heeeeeeeeeerrrrrrrrrrrrreeeeeee------------------------------')
             elseif command == 'disconnectPlayer' then
                 print('disconnected player:')
                 print(type(datastring))
@@ -95,6 +97,7 @@ function PaddleSelectState:update(dt)
 
             end
     end
+end
 
 
     if love.keyboard.wasPressed('left') then
@@ -117,7 +120,7 @@ function PaddleSelectState:update(dt)
     if love.keyboard.wasPressed('return') or love.keyboard.wasPressed('enter') then
         gSounds['confirm']:play()
 
-        local bricks, powers, keypowers, hasKey, key = LevelMaker.createMap(INIT_LEVEL)
+        local bricks, powers, keypowers, hasKey, key = LevelMaker.createMap(INIT_LEVEL, self.isMulti)
 
         gStateMachine:change('serve', {
             paddle = Paddle(self.currentPaddle),

@@ -48,7 +48,7 @@ function Network:ShowPeers()
 end
 
 -- lobby code
--- SOLID
+-- SOLID REDACTED
 function Network:AddLobby(peerAddress, peerPort, lobbyId)
     self.lobbies[lobbyId] = {}
     table.insert(self.lobbies[lobbyId], {peerAddress = peerAddress, peerPort = peerPort})
@@ -65,7 +65,51 @@ function Network:AddLobby(peerAddress, peerPort, lobbyId)
     Network:updateLobbies("addLobbyStates", lobbyStateDatagram)
     -- Maybe add code to push lobby information to all players on creation
 end
--- SOLID
+-- IN PROGRESS
+function Network:AddLobby2(peerAddress, peerPort, lobbyId, playerId)
+    --serialize id for players
+    --make player limit a constant
+    self.lobbies[lobbyId] = {
+        gameState = {
+            players = {},
+            entities = {},
+        },
+        state = 'waiting',
+        playerCount = 0,
+        playerLimit = 4,
+        createdAt = os.time(),
+        updatedAt = os.time()
+    }
+    if self.lobbies[lobbyId].playerCount ~= self.lobbies[lobbyId].limit then
+        self.lobbies[lobbyId].playerCount = self.lobbies[lobbyId].playerCount + 1
+        self.lobbies[lobbyId].updatedAt = os.time()
+        self.lobbies[lobbyId].gameState.players[playerId] = {
+            playerId = playerId,
+            peerAddress = peerAddress,
+            peerPort = peerPort,
+            lastUpdate = os.time(),
+        }
+        table.insert(self.lobbyOrder, lobbyId) --indexing
+        -- Network:ShowLobbies2()
+        local lobbyDatagram = 'lobby:' .. tostring(lobbyId) .. " {".. self.lobbies[lobbyId].state ..','
+        .. tostring(self.lobbies[lobbyId].playerCount) ..','
+        .. tostring(self.lobbies[lobbyId].playerLimit)..','
+        .. tostring(self.lobbies[lobbyId].createdAt)..','
+        .. tostring(self.lobbies[lobbyId].updatedAt)..','
+        .."}"
+        .. tostring(self.lobbies[lobbyId].gamestate.players[playerId].playerId) ..','
+        .. tostring(self.lobbies[lobbyId].gamestate.players[playerId].peerAddress)..','
+        .. tostring(self.lobbies[lobbyId].gamestate.players[playerId].peerPort)..','
+        .. tostring(self.lobbies[lobbyId].gamestate.players[playerId].lastUpdate)..','
+        .."}"
+        Network:updateLobbies2("addNewLobby", lobbyDatagram)
+    else
+        Network:updateLobbies2("lobbyFull", "ERROR:full")
+    end
+
+    -- Maybe add code to push lobby information to all players on creation
+end
+-- SOLID REDACTED
 function Network:updateLobbies(func, datagram) 
     for i, players in pairs(self.peers) do
         print("datagram to add new lobby sent: "..datagram)
@@ -79,8 +123,14 @@ function Network:updateLobbies(func, datagram)
         self.udp:sendto(string.format("%s %s", func, datagram), players.peerAddress, tonumber(players.peerPort))
     end
 end
--- SOLID
-function Network:DeleteLobby(lobbyId) 
+-- IN PROGRESS
+function Network:updateLobbies2(func, datagram)
+    for i, players in pairs(self.peers) do
+        self.udp:sendto(string.format("%s %s", func, datagram), players.peerAddress, tonumber(players.peerPort))
+    end
+end
+-- SOLID REDACTED
+function Network:DeleteLobby(lobbyId)
     -- print("lobby being deleted: "..lobbyId)
     self.lobbies[lobbyId] = nil
     self.lobbyStates[lobbyId] = nil
@@ -94,6 +144,26 @@ function Network:DeleteLobby(lobbyId)
 
 end
 -- IN PROGRESS
+function Network:DeleteLobby2(lobbyId)
+    self.lobbies[lobbyId] = nil
+    for i, id in pairs(self.lobbyOrder) do
+        if id == lobbyId then
+            table.remove(self.lobbyOrder, i)
+        end
+    end
+    Network:updateLobbies2("deleteLobby",tostring(lobbyId))
+end
+-- IN PROGRESS
+function Network:DeletePlayer(lobbyId, playerId)
+    self.Lobbies[lobbyId].gameState.players[playerId] = nil
+    for x, player in pairs(self.NetLobbies[lobbyId].gameState.players) do
+        print('Remaing player Id: '..player.playerId)
+    end
+    self.Lobbies[lobbyId].playerCount = self.Lobbies[lobbyId].playerCount - 1
+    self.Lobbies[lobbyId].updatedAt = os.time()
+end
+-----------------------------------------HEREE---------------------------------------------------
+-- SOLID REDACTED
 function Network:updatePlayersInLobby(playerfunc, playerdatagram, lobbystatefunc, lobbystatedatagram, lobbyId)
     for i, players in pairs(self.lobbies[lobbyId]) do
         -- print("datagram to add new lobby sent: "..datagram)
@@ -105,6 +175,13 @@ function Network:updatePlayersInLobby(playerfunc, playerdatagram, lobbystatefunc
     end
 end
 -- IN PROGRESS
+function Network:updatePlayersInLobby2(playerfunc, playerdatagram, lobbystatefunc, lobbystatedatagram, lobbyId)
+    for i, player in pairs(self.lobbies[lobbyId].gameState.players) do
+        self.udp:sendto(string.format("%s %s", playerfunc, playerdatagram), player.peerAddress, tonumber(player.peerPort))
+        self.udp:sendto(string.format("%s %s", lobbystatefunc, lobbystatedatagram), player.peerAddress, tonumber(player.peerPort))
+    end
+end
+-- SOLID REDACTED
 function Network:AddPlayerToLobbyByID(lobbyId, peerAddress, peerPort)
     table.insert(self.lobbies[lobbyId], {peerAddress = peerAddress, peerPort = peerPort})
     self.lobbyStates[lobbyId].playerCount = self.lobbyStates[lobbyId].playerCount + 1
@@ -115,7 +192,23 @@ function Network:AddPlayerToLobbyByID(lobbyId, peerAddress, peerPort)
     Network:updatePlayersInLobby('addNewPlayer', lobbyDatagram, "updateLobbyState", lobbyStateDatagram, lobbyId)
     
 end
---SOLID IT SEEMS
+-- IN PROGRESS
+function Network:AddPlayerToLobbyByID2(lobbyId, playerId, peerAddress, peerPort)
+    self.lobbies[lobbyId].gamestate.players[playerId] = {
+        playerId = playerId,
+        peerAddress = peerAddress,
+        peerPort = peerPort,
+        lastUpdate = os.time()
+    }
+    self.lobbies[lobbyId].playerCount = self.lobbies[lobbyId].playerCount + 1
+    local lobbyDatagram = Network:createDatagram('getLobbyAt',lobbyId)
+    local lobbyStateDatagram = Network:createDatagram('getLobbyStateAt',lobbyId)
+
+    print('about to update')
+    Network:updatePlayersInLobby2('addNewPlayer', lobbyDatagram, "updateLobbyState", lobbyStateDatagram, lobbyId)
+    
+end
+-- SOLID REDACTED
 function Network:SendLobbiesInOrder(userIp, userPort)
     local lobbyDatagramTable = Network:createDatagram('getAllLobbies')
     local lobbyStateDatagramTable = Network:createDatagram('getAllLobbyStates')
@@ -135,7 +228,7 @@ function Network:SendLobbiesInOrder(userIp, userPort)
         self.udp:sendto(string.format("%s %s", "initLobbyStates", lobstatedatagram), userIp, userPort)
     end
 end
-
+-- SOLID REDACTED
 function Network:SendLobbyById(lobbyId, userIp, userPort)
     local lobbyDatagram = Network:createDatagram('getLobbyAt',lobbyId)
     local lobbyStateDatagram = Network:createDatagram('getLobbyStateAt',lobbyId)
@@ -151,7 +244,7 @@ function Network:SendLobbyById(lobbyId, userIp, userPort)
         print("datagram sent for 1 ID: "..lobbyStateDatagram)
         self.udp:sendto(string.format("%s %s", "initLobbyState", lobbyStateDatagram), userIp, userPort)
 end
-
+-- IN PROGRESS
 function Network:createDatagram(query, payload)
 
 
@@ -226,7 +319,7 @@ function Network:createDatagram(query, payload)
     end
 
 end
--- SOLID
+-- SOLID REDACTED
 function Network:ShowLobbies()
     if self.lobbies[self.lobbyOrder[1]] then
         for i,x in pairs(self.lobbyOrder) do
@@ -302,3 +395,21 @@ end
 
 -- end
 print "Thank you."
+
+
+--iterations of structing data
+-- 1. self.lobbies[lobbyid] = {peeraddress = peerAddress, peerPort}
+
+
+-- 2. self.lobbies[lobbyid] = {}
+--    table.insert(self.lobbies[lobbyid], {peeraddress = peerAddress, peerPort})
+
+
+-- 3. self.lobbies[lobbyid] = {
+--   gamestate = {
+--          players = {},
+--          entities = {},
+--          world = {}
+--      }
+--   state = 'waiting'
+--}

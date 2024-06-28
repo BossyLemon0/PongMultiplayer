@@ -145,11 +145,11 @@ function JoinLobbyState:update(dt)
             local AddPlayerTolobby = string.format("%s %s %s %d %s %d", "player", 'update', "add", self.lobbyOrder[self.menuCursor], address, port)
             udp:send(AddPlayerTolobby)
             print('should Send new player')
-            -- gStateMachine:change('paddle-select', {
-            --     highScores = self.highScores,
-            --     lobbyId = self.lobbyOrder[self.menuCursor],
-            --     multi = true,
-            -- }, self.udp)
+            gStateMachine:change('paddle-select', {
+                highScores = self.highScores,
+                lobbyId = self.lobbyOrder[self.menuCursor],
+                multi = true,
+            }, self.udp)
         end
     end
 
