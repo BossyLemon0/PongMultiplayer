@@ -47,3 +47,15 @@ function NetworkUtil:parseLobbyInfo(string)
     end
     return lobbyState
 end
+
+function NetworkUtil:parseLobbyInfo2(string)
+    local players = {}
+    local id_pattern = "lobby:(%d+)"
+    local lobbyId =  string:match(id_pattern)
+
+    local lobby_info_pattern = "Info:{%s*(%w+)%s*,%s*(%d+)%s*,%s*(%d+)%s*,%s*(%d+)%s*,%s*(%d+)%s*}"
+    local lobbyInfo =  string:match(lobby_info_pattern)
+
+    local lobby_player_pattern = "Player:{%s*(%d+)%s*,%s*([^,]+)%s*,%s*(%d+)%s*,%s*(%d+)%s*}"
+    local lobbyInfo =  string:match(lobby_player_pattern)
+end

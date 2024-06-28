@@ -22,6 +22,7 @@ function CreateLobbyState:enter(params,udp)
     self.highScores = params.highScores
     self.udp = udp
     self.lobbyId = 0
+    self.playerId = 0
     self.address, self.port = '', 0
     print("at Createlobby ".. self.udp:getpeername())
     self.util = NetworkUtil()
@@ -31,10 +32,11 @@ function CreateLobbyState:CreateInfo(udp)
     -- add checks to see what id's are available from network, for now just random
     -- add username sending
     self.lobbyId = math.random(40)
+    self.playerId = math.random(4)
     self.address, self.port = udp:getsockname()
-    local addLobby = string.format("%s %s %s %s %d %d", "lobby", 'update', 'add' , self.address, self.port, self.lobbyId)
+    local addLobby = string.format("%s %s %s %s %d %d %d", "lobby", 'update', 'add' , self.address, self.port, self.lobbyId, self.playerId)
     udp:send(addLobby)
-    return self.lobbyId
+    return self.lobbyId, self.playerId
 end
 
 function CreateLobbyState:update(dt)
@@ -63,10 +65,12 @@ function CreateLobbyState:update(dt)
         if highlighted == 1 then
             -- paddle-select
             -- wait-for-players
+            local lobbyId, playerId = CreateLobbyState:CreateInfo(self.udp)
             gStateMachine:change('paddle-select', {
                 highScores = self.highScores,
                 multi = true,
-                lobbyId = CreateLobbyState:CreateInfo(self.udp)
+                lobbyId = lobbyId,
+                playerId = playerId
             }, self.udp)
         elseif highlighted == 2 then
             gStateMachine:change('multiplayer-select-menu', {

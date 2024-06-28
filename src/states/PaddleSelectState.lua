@@ -26,17 +26,13 @@ function PaddleSelectState:enter(params, udp)
         PaddleSelectState:requestLobbyInfo(self, self.udp)
         self.NetworkUtil = NetworkUtil()
     end
-
 end
 
 function PaddleSelectState:init()
-    -- the paddle we're highlighting; will be passed to the ServeState
-    -- when we press Enter
     self.currentPaddle = 1
 end
 
 function PaddleSelectState:requestLobbyInfo(self,udp)
-    print('sending')
     local address, port = udp:getsockname()
     local requestLobby = string.format("%s %s %d %s %d", "lobby", 'request', self.lobbyId , address, port)
     udp:send(requestLobby)
@@ -54,15 +50,15 @@ if self.isMulti then
         print(data)
         local command, datastring = data:match("^(%S+) (.+)$")
         print(command)
-
             if command == 'initLobby' then
+                print('-----------------------------you are here ----------------------')
                 local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
                 print("Now create table: "..lobbyId)
                 print("Found in table: "..playerTable[1].peerPort)
                 -- reconstruct lobby and lobby order
                 self.lobby =  playerTable
                 print(self.lobby[1].peerPort)
-
+                print('-----------------------------you are here ----------------------')
             elseif command == 'initLobbyState' then
                 print("from Init Lobbystate"..datastring)
                 local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
@@ -136,7 +132,7 @@ end
             recoverPoints = 5000,
             isMulti = self.multi,
             lobbyId = self.lobbyId,
-            lobby = self.lobby ,
+            lobby = self.lobby,
             lobbyState = self.lobbyState,
         }, self.udp)
     end

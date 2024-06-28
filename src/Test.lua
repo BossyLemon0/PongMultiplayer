@@ -40,7 +40,10 @@ function Test:CreateLobby(peerPort, peerAddress, lobbyId, playerId)
     self.NetLobbies[lobbyId] = {
         gameState = {
             players = {},
-            entities = {},
+            entities = {
+                balls = {},
+                bricks = {}
+            },
         },
         state = 'waiting',
         playerCount = 0,
