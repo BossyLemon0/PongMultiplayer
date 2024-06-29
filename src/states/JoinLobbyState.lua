@@ -62,13 +62,8 @@ function JoinLobbyState:update(dt)
                 self.lobbies[lobbyId] = lobbyInfo
                 table.insert(self.lobbyOrder,lobbyId)
             elseif command == 'addNewLobby' then
-                print('should add')
-                local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
-                print("Now create table: "..lobbyId)
-                print("Found in table: "..playerTable[1].peerPort)
-                -- reconstruct lobby and lobby order
-                self.lobbies[lobbyId] = {}
-                table.insert(self.lobbies[lobbyId],  playerTable)
+                local lobbyId, playerTable, lobbyInfo  = self.NetworkUtil:parseLobbyData(datastring,command)
+                self.lobbies[lobbyId] = lobbyInfo
                 table.insert(self.lobbyOrder,lobbyId)
             elseif command == 'addLobbyStates' then
                 local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)

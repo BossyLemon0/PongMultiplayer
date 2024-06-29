@@ -97,18 +97,14 @@ function Network:AddLobby2(peerAddress, peerPort, lobbyId, playerId)
         }
         table.insert(self.lobbyOrder, lobbyId) --indexing
         -- Network:ShowLobbies2()
-        local lobbyDatagram = 'lobby:' .. tostring(lobbyId) .. " {".. self.lobbies[lobbyId].state ..','
+        local lobbyDatagram = 'lobbyId=' .. tostring(lobbyId) .. ";"
+        .."lobbyInfo="
+        .. self.lobbies[lobbyId].state ..','
         .. tostring(self.lobbies[lobbyId].playerCount) ..','
         .. tostring(self.lobbies[lobbyId].playerLimit)..','
         .. tostring(self.lobbies[lobbyId].createdAt)..','
         .. tostring(self.lobbies[lobbyId].updatedAt)..
-        "} "
-        .."{ "
-        .. tostring(self.lobbies[lobbyId].gameState.players[playerId].playerId) ..','
-        .. tostring(self.lobbies[lobbyId].gameState.players[playerId].peerAddress)..','
-        .. tostring(self.lobbies[lobbyId].gameState.players[playerId].peerPort)..','
-        .. tostring(self.lobbies[lobbyId].gameState.players[playerId].lastUpdate)..','
-        .."}"
+        ";"
         Network:updateLobbies2("addNewLobby", lobbyDatagram)
     else
         Network:updateLobbies2("lobbyFull", "ERROR:full")
