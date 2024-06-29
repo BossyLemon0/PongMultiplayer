@@ -68,7 +68,8 @@ if self.isMulti then
 
                 local lobbyId, playerTable, lobbyInfoTable = self.NetworkUtil:parseLobbyData(datastring,command)
                 for i, player in pairs(playerTable) do
-                    self.lobby.gameState.players[playerTable.playerId] = player
+                    print(player.playerId)
+                    self.lobby.gameState.players[player.playerId] = player
                 end
                 self.lobby.state = lobbyInfoTable.lobbyState
                 self.lobby.playerCount = lobbyInfoTable.playerCount
