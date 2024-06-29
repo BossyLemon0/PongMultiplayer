@@ -164,8 +164,12 @@ function Network:DeletePlayer(lobbyId, playerId)
     end
     self.Lobbies[lobbyId].playerCount = self.Lobbies[lobbyId].playerCount - 1
     self.Lobbies[lobbyId].updatedAt = os.time()
-    --update all in lobbies menu about playerCount
-    --update all players in the lobby about: player and count
+    local lobbydatagram = ""
+    lobbydatagram = lobbydatagram .. "lobbyId="..lobbyId.. ';'
+    Network:updateLobbies2('deleteLobbyAt', lobbydatagram)
+    lobbydatagram = lobbydatagram.. "playerId="..tostring(playerId).. ';'
+    .. "lobbyInfo="..tostring(self.Lobbies[lobbyId].playerCount).."," ..tostring(self.Lobbies[lobbyId].updatedAt)
+    Network:updatePlayersInLobby2('disconnectPlayerAt', lobbydatagram, lobbyId)
 end
 
 -- SOLID REDACTED
@@ -181,7 +185,7 @@ function Network:updatePlayersInLobby(playerfunc, playerdatagram, lobbystatefunc
 end
 -----------------------------------------HEREE---------------------------------------------------
 -- IN PROGRESS
-function Network:updatePlayersInLobby2(playerfunc, playerdatagram,lobbyId)
+function Network:updatePlayersInLobby2(playerfunc, playerdatagram, lobbyId)
     for i, player in pairs(self.lobbies[lobbyId].gameState.players) do
         self.udp:sendto(string.format("%s %s", playerfunc, playerdatagram), player.peerAddress, tonumber(player.peerPort))
     end
@@ -506,7 +510,11 @@ function Network:update(dt)
             elseif entitycmd == 'delete' then
                 if entity == 'lobby' then
                     local lobbyId = string.match(parms, "(%d+)")
-                    Network:DeleteLobby(lobbyId)
+                    Network:DeleteLobby2(lobbyId)
+                end
+                if entity == 'player' then
+                    local lobbyId, playerId = string.match(parms, "(%d+) (%d+)")
+                    Network:DeletePlayer(lobbyId, playerId)
                 end
             end
         elseif cmd  == 'request' then

@@ -65,23 +65,14 @@ function JoinLobbyState:update(dt)
                 local lobbyId, playerTable, lobbyInfo  = self.NetworkUtil:parseLobbyData(datastring,command)
                 self.lobbies[lobbyId] = lobbyInfo
                 table.insert(self.lobbyOrder,lobbyId)
-            elseif command == 'addLobbyStates' then
-                local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
-                -- print("Now create table: "..lobbyId)
-                -- print("Found in table: "..playerTable[1].peerPort)
-                -- reconstruct lobby and lobby order
-                self.lobbyStates[lobbyId] =  lobbyStateTable
             elseif command == 'deleteLobby' then
                 print('delete lobby:')
-                print(type(datastring))
                 self.lobbies[tonumber(datastring)] = nil
-                self.lobbyStates[tonumber(datastring)] = nil
                 for i, id in pairs(self.lobbyOrder) do
                     if id == tonumber(datastring) then
                         table.remove(self.lobbyOrder, i)
                     end
                 end
-
             end
     end
 

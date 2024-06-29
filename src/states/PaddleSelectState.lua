@@ -17,6 +17,7 @@ PaddleSelectState = Class{__includes = BaseState}
 function PaddleSelectState:enter(params, udp)
     self.highScores = params.highScores
     self.isMulti = params.multi
+    self.playerId = params.playerId
     self.lobby = {
         gameState = {
             players = {},
@@ -66,7 +67,9 @@ if self.isMulti then
             if command == 'initLobby' then
 
                 local lobbyId, playerTable, lobbyInfoTable = self.NetworkUtil:parseLobbyData(datastring,command)
-                self.lobby.gameState.players = playerTable
+                for i, player in pairs(playerTable) do
+                    self.lobby.gameState.players[playerTable.playerId] = player
+                end
                 self.lobby.state = lobbyInfoTable.lobbyState
                 self.lobby.playerCount = lobbyInfoTable.playerCount
                 self.lobby.playerLimit = lobbyInfoTable.playerLimit
@@ -82,16 +85,10 @@ if self.isMulti then
                 self.lobby =  playerTable
             elseif command == 'updateLobbyState' then
                 print(datastring)
-                local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
-                print(lobbyStateTable)
-
-                -- reconstruct lobby and lobby order
-                self.lobbyState =  lobbyStateTable[1]
-            elseif command == 'disconnectPlayer' then
-                print('disconnected player:')
-                print(type(datastring))
+                local lobbyId, playerTable, lobbyInfoTable  = self.NetworkUtil:parseLobbyData(datastring,command)
+                --fill in
+            elseif command == 'deleteLobbyAt' then
                 self.lobbies[tonumber(datastring)] = nil
-                self.lobbyStates[tonumber(datastring)] = nil
                 for i, id in pairs(self.lobbyOrder) do
                     if id == tonumber(datastring) then
                         table.remove(self.lobbyOrder, i)
@@ -145,6 +142,18 @@ end
     end
 
     if love.keyboard.wasPressed('escape') then
+        self.lobby.gameState.players[self.playerId] = nil
+        self.lobby.playerCount = self.lobby.playerCount - 1
+        if self.lobby.playerCount == 0 then
+            local deleteLobby = string.format("%s %s %s %d", "lobby", 'update', 'delete', self.lobby.lobbyId)
+            self.udp:send(deleteLobby)
+        else
+            local deletePlayer = string.format("%s %s %s %d %d", "player", 'update', 'delete' , self.lobby.lobbyId, self.playerId)
+            self.udp:send(deletePlayer)
+        end
+
+
+
         love.event.quit()
     end
 end
