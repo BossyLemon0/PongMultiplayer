@@ -239,8 +239,8 @@ end
 -- IN PROGRESS
 function Network:SendLobbiesInOrder2(userIp, userPort)
     local lobbiesDatagramTable = Network:createDatagram2('getAllLobbies')
-    for i, lobby in pairs(lobbiesDatagramTable) do
-        self.udp:sendto(string.format("%s %s", "initLobbies", lobbiesDatagramTable), userIp, userPort)
+    for i, lobbyDatagram in pairs(lobbiesDatagramTable) do
+        self.udp:sendto(string.format("%s %s", "initLobbies", lobbyDatagram), userIp, userPort)
     end
 end
 -- SOLID REDACTED
@@ -348,14 +348,13 @@ function Network:createDatagram2(query, payload)
         for orderId, lobbyid in pairs(self.lobbyOrder) do
             local lobbystring = ''
             local lobby = self.lobbies[lobbyid]
-            lobbystring = lobbystring .. "lobby:" .. tostring(lobbyid) .. ' '
-            lobbystring = lobbystring .. "Info: " .."{"
+            lobbystring = lobbystring .. "lobbyId=" .. tostring(lobbyid) .. ';'
+            lobbystring = lobbystring .. "lobbyInfo="
             .. tostring(lobby.state) ..','
             .. tostring(lobby.playerCount) ..','
             .. tostring(lobby.playerLimit)..','
             .. tostring(lobby.createdAt)..','
             .. tostring(lobby.updatedAt)
-            .."}"
             table.insert(datagrams, lobbystring)
         end
         return datagrams
@@ -518,7 +517,7 @@ function Network:update(dt)
             --send lobbies to user
             if entity == 'lobbies' then
                 if entitycmd == 'order_by_when_created' then
-                    Network:SendLobbiesInOrder(msg_or_ip, port_or_nil)
+                    Network:SendLobbiesInOrder2(msg_or_ip, port_or_nil)
                 end
             elseif entity =='lobby' then
                 Network:SendLobbyById2(tonumber(entitycmd), msg_or_ip, port_or_nil) --touch lol

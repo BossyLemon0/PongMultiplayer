@@ -22,7 +22,6 @@ function JoinLobbyState:enter(params,udp)
     -- self.lobbies = params.lobbies  Getting lobbies should be done by recieving a call from the network
     self.udp = udp
     self.lobbies = {}
-    self.lobbyStates = {}
     self.lobbyOrder = {}
     self.menuCursor = -1
     self.menulistcount = 0
@@ -59,17 +58,9 @@ function JoinLobbyState:update(dt)
         print(command)
 
             if command == 'initLobbies' then
-                local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
-                print("Now create table: "..lobbyId)
-                print("Found in table: "..playerTable[1].peerPort)
-                -- reconstruct lobby and lobby order
-                self.lobbies[lobbyId] = {}
-                table.insert(self.lobbies[lobbyId],  playerTable)
+                local lobbyId, playerTable, lobbyInfo  = self.NetworkUtil:parseLobbyData(datastring,command)
+                self.lobbies[lobbyId] = lobbyInfo
                 table.insert(self.lobbyOrder,lobbyId)
-            elseif command == 'initLobbyStates' then
-                print("from Init Lobbystates"..datastring)
-                local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
-                self.lobbyStates[lobbyId] =  lobbyStateTable
             elseif command == 'addNewLobby' then
                 print('should add')
                 local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
@@ -180,10 +171,8 @@ function JoinLobbyState:render()
                 love.graphics.setColor(103/255, 1, 1, 1)
             end
             love.graphics.printf("lobby: ".. lobbyId, 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH - 100, 'center')
-            if self.lobbyStates[lobbyId] then
-                love.graphics.printf(tostring(self.lobbyStates[lobbyId][1].playerCount).."/"
-                ..tostring(self.lobbyStates[lobbyId][1].limit), 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH + 100, 'center')
-            end
+            love.graphics.printf(tostring(self.lobbies[lobbyId].playerCount).."/"
+            ..tostring(self.lobbies[lobbyId].playerLimit), 0, VIRTUAL_HEIGHT / 2 - 40 + spacing, VIRTUAL_WIDTH + 100, 'center')
             
             love.graphics.setColor(1, 1, 1, 1)
             -- add player info later
