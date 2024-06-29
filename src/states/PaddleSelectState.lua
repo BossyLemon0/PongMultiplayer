@@ -17,10 +17,23 @@ PaddleSelectState = Class{__includes = BaseState}
 function PaddleSelectState:enter(params, udp)
     self.highScores = params.highScores
     self.isMulti = params.multi
-    self.lobbyId = params.lobbyId
-    self.lobby = {}
-    self.lobbyState = {}
-    self.lobbyOrder = {}
+    self.lobby = {
+        gameState = {
+            players = {},
+            entities = {
+                balls = {},
+            },
+            world = {
+                bricks = {},
+            }
+        },
+        state = 'waiting',
+        playerCount = 0,
+        playerLimit = 4,
+        createdAt = os.time(),
+        updatedAt = os.time(),
+        lobbyId = params.lobbyId
+    }
     if self.isMulti then
         self.udp = udp
         PaddleSelectState:requestLobbyInfo(self, self.udp)
@@ -34,7 +47,7 @@ end
 
 function PaddleSelectState:requestLobbyInfo(self,udp)
     local address, port = udp:getsockname()
-    local requestLobby = string.format("%s %s %d %s %d", "lobby", 'request', self.lobbyId , address, port)
+    local requestLobby = string.format("%s %s %d %s %d", "lobby", 'request', self.lobby.lobbyId , address, port)
     udp:send(requestLobby)
 end
 
@@ -51,19 +64,16 @@ if self.isMulti then
         local command, datastring = data:match("^(%S+) (.+)$")
         print(command)
             if command == 'initLobby' then
-                local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
-                print("Now create table: "..lobbyId)
-                print("Found in table: "..playerTable[1].peerPort)
-                -- reconstruct lobby and lobby order
-                self.lobby =  playerTable
-                print(self.lobby[1].peerPort)
-            elseif command == 'initLobbyState' then
-                print("from Init Lobbystate"..datastring)
-                local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)
-                self.lobbyState =  lobbyStateTable[1]
-
-                print(self.lobbyState.state)
-                print(self.lobbyState.limit)
+                print("----------------------here-----------------------------------")
+                local lobbyId, playerTable, lobbyInfoTable = self.NetworkUtil:parseLobbyData(datastring,command)
+                self.lobby.gameState.players = playerTable
+                self.lobby.state = lobbyInfoTable.lobbyState
+                self.lobby.playerCount = lobbyInfoTable.playerCount
+                self.lobby.playerLimit = lobbyInfoTable.playerLimit
+                self.lobby.createdAt = lobbyInfoTable.createdAt
+                self.lobby.updatedAt = lobbyInfoTable.lastUpdatedAt
+                print(self.lobby.gameState.players[1].playerId)
+                print("----------------------here-----------------------------------")
 
             elseif command == 'addNewPlayer' then
                 print('should add new player')
@@ -145,13 +155,13 @@ function PaddleSelectState:render()
     -- if self.isMulti then
     --     print(#self.lobbyState)
     -- end
-    if self.isMulti and self.lobbyState.state then
+    if self.isMulti and self.lobby.state == 'waiting' then
         love.graphics.setFont(gFonts['small'])
         love.graphics.printf("Waiting...", 0, VIRTUAL_HEIGHT / 7,
             VIRTUAL_WIDTH - 200, 'center')
 
             love.graphics.setFont(gFonts['small'])
-            love.graphics.printf(self.lobbyState.playerCount.."/"..self.lobbyState.limit , 0, VIRTUAL_HEIGHT / 7,
+            love.graphics.printf(self.lobby.playerCount.."/"..self.lobby.playerLimit , 0, VIRTUAL_HEIGHT / 7,
                 VIRTUAL_WIDTH + 200, 'center')
     end
     -- instructions
