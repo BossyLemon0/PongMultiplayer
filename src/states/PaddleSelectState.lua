@@ -51,14 +51,12 @@ if self.isMulti then
         local command, datastring = data:match("^(%S+) (.+)$")
         print(command)
             if command == 'initLobby' then
-                print('-----------------------------you are here ----------------------')
                 local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
                 print("Now create table: "..lobbyId)
                 print("Found in table: "..playerTable[1].peerPort)
                 -- reconstruct lobby and lobby order
                 self.lobby =  playerTable
                 print(self.lobby[1].peerPort)
-                print('-----------------------------you are here ----------------------')
             elseif command == 'initLobbyState' then
                 print("from Init Lobbystate"..datastring)
                 local lobbyId, lobbyStateTable  = self.NetworkUtil:parseLobbyData(datastring,command)

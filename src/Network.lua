@@ -93,7 +93,7 @@ function Network:AddLobby2(peerAddress, peerPort, lobbyId, playerId)
             playerId = playerId,
             peerAddress = peerAddress,
             peerPort = peerPort,
-            lastUpdate = os.time(),
+            lastUpdatedAt= os.time(),
         }
         table.insert(self.lobbyOrder, lobbyId) --indexing
         -- Network:ShowLobbies2()
@@ -363,23 +363,21 @@ function Network:createDatagram2(query, payload)
         local lobbyString =  ''
         local lobby = self.lobbies[payload.lobbyId]
         lobbyString = lobbyString .. "lobbyId=" .. tostring(payload.lobbyId)..";"
-        lobbyString = lobbyString .. "info="
-        .. tostring(lobby.state) ..','
-        .. tostring(lobby.playerCount) ..','
-        .. tostring(lobby.playerLimit)..','
-        .. tostring(lobby.createdAt)..','
-        .. tostring(lobby.updatedAt)
-        ..";"
         lobbyString = lobbyString .. "players="
         for i, player in pairs(lobby.gameState.players) do
             lobbyString = lobbyString
             ..player.playerId ..","
             .. player.peerAddress ..","
             .. player.peerPort ..","
-            .. player.lastUpdate
-            .. "} "
+            .. player.lastUpdatedAt..
+            ";"
         end
-
+        lobbyString = lobbyString .. "lobbyInfo="
+        .. tostring(lobby.state) ..','
+        .. tostring(lobby.playerCount) ..','
+        .. tostring(lobby.playerLimit)..','
+        .. tostring(lobby.createdAt)..','
+        .. tostring(lobby.updatedAt)
         return lobbyString
     elseif query == "getGameStateAt" then
         local lobbyString =  ''

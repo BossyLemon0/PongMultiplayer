@@ -8,7 +8,7 @@ end
 function NetworkUtil:parseLobbyData(data, command)
     local lobbyId = NetworkUtil:parseLobbyId(data)
     if command == "addNewLobby" or command == "initLobbies" or command == "initLobby" or command == 'addNewPlayer' then
-        local playersTable = NetworkUtil:parsePlayerInfo(data)
+        local playersTable = NetworkUtil:parseLobbyInfo2(data)
         return tonumber(lobbyId), playersTable
     elseif command == "addLobbyStates" or command == "initLobbyStates" or command == "initLobbyState" or command == "updateLobbyState" then
         local statesTable = NetworkUtil:parseLobbyInfo(data)
@@ -49,13 +49,48 @@ function NetworkUtil:parseLobbyInfo(string)
 end
 
 function NetworkUtil:parseLobbyInfo2(string)
+    local sections = {}
+    for section in string.gmatch(string, "([^;]+)") do
+        table.insert(sections, section)
+    end
     local players = {}
-    local id_pattern = "lobby:(%d+)"
-    local lobbyId =  string:match(id_pattern)
+    local lobbyInfo = {}
+    local lobbyId = nil
 
-    local lobby_info_pattern = "Info:{%s*(%w+)%s*,%s*(%d+)%s*,%s*(%d+)%s*,%s*(%d+)%s*,%s*(%d+)%s*}"
-    local lobbyInfo =  string:match(lobby_info_pattern)
+    for _, section in ipairs(sections) do
+        local key, value = string.match(section, "(%w+)=(.+)")
+        if key == "players" then
+            -- Split player data using semicolons
+            for player in string.gmatch(value, "([^;]+)") do
+                local playerId, playerAddress, playerPort, lastUpdatedAt = string.match(player, "(%d+),([^,]+),(%d+),(%d+)")
+                table.insert(players, {
+                    playerId = tonumber(playerId),
+                    playerAddress = playerAddress,
+                    playerPort = tonumber(playerPort),
+                    lastUpdatedAt = tonumber(lastUpdatedAt),
+                })
+            end
+        elseif key == "lobbyInfo" then
+            local lobbyState, playerCount, playerLimit, createdAt, lastUpdatedAt = string.match(value, "([^,]+),(%d+),(%d+),(%d+),(%d+)")
+            table.insert(lobbyInfo, {
+                lobbyState = lobbyState,
+                playerCount = tonumber(playerCount),
+                playerLimit = tonumber(playerLimit),
+                createdAt = tonumber(createdAt),
+                lastUpdatedAt = tonumber(lastUpdatedAt),
+            })
+        elseif key == "lobbyId" then
+            lobbyId = tonumber(value)
+        end
+    end
 
-    local lobby_player_pattern = "Player:{%s*(%d+)%s*,%s*([^,]+)%s*,%s*(%d+)%s*,%s*(%d+)%s*}"
-    local lobbyInfo =  string:match(lobby_player_pattern)
+    print(lobbyId)
+    for i,player in pairs(players) do
+        print(player.playerId)
+    end
+    for i,lobby in pairs(lobbyInfo) do
+        print(lobby.lobbyState)
+        print(lobby.lastUpdatedAt)
+    end
+    return lobbyId, players, lobbyInfo
 end
