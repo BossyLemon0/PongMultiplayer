@@ -76,7 +76,6 @@ if self.isMulti then
         local command, datastring = data:match("^(%S+) (.+)$")
         print(command)
             if command == 'initLobby' then
-                print('--------------------------first-----------------------------------')
                 local lobbyId, playerTable, lobbyInfoTable = self.NetworkUtil:parseLobbyData(datastring,command)
                 for i, player in pairs(playerTable) do
                     print(player.playerId)
@@ -92,7 +91,6 @@ if self.isMulti then
 
 
             elseif command == 'addNewPlayer' then
-                print('--------------------------Second-----------------------------------')
                 print('should add new player')
                 local lobbyId, playerTable, lobbyInfoTable, newPlayer = self.NetworkUtil:parseLobbyData(datastring,command)
                 print(newPlayer.playerId)

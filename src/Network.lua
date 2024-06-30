@@ -217,6 +217,8 @@ function Network:AddPlayerToLobbyByID2(lobbyId, playerId, peerAddress, peerPort)
     --added it as a table just to know what exactly we are getting through payload.WTV
     local lobbyDatagram = Network:createDatagram2('getNewPlayer',{lobbyId = tonumber(lobbyId), playerId = tonumber(playerId)})
     Network:updatePlayersInLobby2('addNewPlayer', lobbyDatagram, lobbyId, playerId)
+    local lobbyCountDatagram = Network:createDatagram2('getNewLobbyCount',{lobbyId = tonumber(lobbyId)})
+    Network:updateLobbies2('updateLobbyCountAt', lobbyCountDatagram)
     
 end
 -- SOLID REDACTED
@@ -394,6 +396,17 @@ function Network:createDatagram2(query, payload)
             .. player.lastUpdatedAt..
             ";"
 
+        lobbyString = lobbyString .. "lobbyInfo="
+        .. tostring(lobby.state) ..','
+        .. tostring(lobby.playerCount) ..','
+        .. tostring(lobby.playerLimit)..','
+        .. tostring(lobby.createdAt)..','
+        .. tostring(lobby.updatedAt)
+        return lobbyString
+    elseif query == "getNewLobbyCount" then
+        local lobbyString =  ''
+        local lobby = self.lobbies[payload.lobbyId]
+        lobbyString = lobbyString .. "lobbyId=" .. tostring(payload.lobbyId)..";"
         lobbyString = lobbyString .. "lobbyInfo="
         .. tostring(lobby.state) ..','
         .. tostring(lobby.playerCount) ..','

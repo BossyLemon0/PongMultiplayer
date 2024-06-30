@@ -58,13 +58,22 @@ function JoinLobbyState:update(dt)
         print(command)
 
             if command == 'initLobbies' then
-                local lobbyId, playerTable, lobbyInfo  = self.NetworkUtil:parseLobbyData(datastring,command)
+                local lobbyId, playerTable, lobbyInfo,_ = self.NetworkUtil:parseLobbyData(datastring,command)
                 self.lobbies[lobbyId] = lobbyInfo
                 table.insert(self.lobbyOrder,lobbyId)
             elseif command == 'addNewLobby' then
-                local lobbyId, playerTable, lobbyInfo  = self.NetworkUtil:parseLobbyData(datastring,command)
+                local lobbyId, playerTable, lobbyInfo,_   = self.NetworkUtil:parseLobbyData(datastring,command)
                 self.lobbies[lobbyId] = lobbyInfo
                 table.insert(self.lobbyOrder,lobbyId)
+            elseif command == 'updateLobbyCountAt' then
+                print(datastring)
+                local lobbyId, playerTable, lobbyInfo,_  = self.NetworkUtil:parseLobbyData(datastring,command)
+                if lobbyInfo then
+                    print('--------------------------------lobby INFO ARRIVED-------------------------------------')
+                    self.lobbies[lobbyId].playerCount = lobbyInfo.playerCount
+                    self.lobbies[lobbyId].lastUpdatedAt = lobbyInfo.lastUpdatedAt
+                end
+
             elseif command == 'deleteLobby' then
                 print('delete lobby:')
                 self.lobbies[tonumber(datastring)] = nil

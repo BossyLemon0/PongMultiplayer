@@ -6,7 +6,8 @@ end
 
 
 function NetworkUtil:parseLobbyData(data, command)
-    if command == "addNewLobby" or command == "initLobbies" or command == "initLobby" or command == 'addNewPlayer' then
+    if command == "addNewLobby" or command == "initLobbies" or command == "initLobby"
+    or command == 'addNewPlayer' or command == 'updateLobbyCountAt' then
         local lobbyId, playersTable, lobbyInfoTable, newPlayer = NetworkUtil:parseLobbyInfo2(data)
         return lobbyId, playersTable, lobbyInfoTable, newPlayer
     elseif command == "addLobbyStates" or command == "initLobbyStates" or command == "initLobbyState" or command == "updateLobbyState" then
