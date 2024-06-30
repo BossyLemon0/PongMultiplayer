@@ -119,12 +119,14 @@ function JoinLobbyState:update(dt)
         else
             --update players at table
             local address, port = udp:getsockname()
-            local AddPlayerTolobby = string.format("%s %s %s %d %s %d", "player", 'update', "add", self.lobbyOrder[self.menuCursor], address, port)
+            local playerId = math.random(40)
+            local AddPlayerTolobby = string.format("%s %s %s %d %d %s %d", "player", 'update', "add", self.lobbyOrder[self.menuCursor], playerId, address, port)
             udp:send(AddPlayerTolobby)
             print('should Send new player')
             gStateMachine:change('paddle-select', {
                 highScores = self.highScores,
                 lobbyId = self.lobbyOrder[self.menuCursor],
+                playerId = playerId,
                 multi = true,
             }, self.udp)
         end

@@ -53,6 +53,17 @@ function PaddleSelectState:requestLobbyInfo(self,udp)
 end
 
 function PaddleSelectState:update(dt)
+    -- local t = 0
+    -- t = t + dt
+    -- if (t > 10) then
+        -- print(self.peers)
+        -- if not self.lobby or not self.lobby.gameState then
+        --     print("self.lobby or self.lobby.gameState is nil")
+        -- else
+        --     print("self.lobby and self.lobby.gameState are properly initialized")
+        -- end
+    -- end
+
 
 if self.isMulti then
     local data, msg = self.udp:receive()
@@ -65,11 +76,13 @@ if self.isMulti then
         local command, datastring = data:match("^(%S+) (.+)$")
         print(command)
             if command == 'initLobby' then
-
+                print('--------------------------first-----------------------------------')
                 local lobbyId, playerTable, lobbyInfoTable = self.NetworkUtil:parseLobbyData(datastring,command)
                 for i, player in pairs(playerTable) do
                     print(player.playerId)
                     self.lobby.gameState.players[player.playerId] = player
+                    print(self.lobby.state)
+                    
                 end
                 self.lobby.state = lobbyInfoTable.lobbyState
                 self.lobby.playerCount = lobbyInfoTable.playerCount
@@ -79,15 +92,17 @@ if self.isMulti then
 
 
             elseif command == 'addNewPlayer' then
+                print('--------------------------Second-----------------------------------')
                 print('should add new player')
-                local lobbyId, playerTable  = self.NetworkUtil:parseLobbyData(datastring,command)
-                print(playerTable)
+                local lobbyId, playerTable, lobbyInfoTable, newPlayer = self.NetworkUtil:parseLobbyData(datastring,command)
+                print(newPlayer.playerId)
                 -- reconstruct lobby and lobby order
-                self.lobby =  playerTable
-            elseif command == 'updateLobbyState' then
-                print(datastring)
-                local lobbyId, playerTable, lobbyInfoTable  = self.NetworkUtil:parseLobbyData(datastring,command)
-                --fill in
+                self.lobby.gameState.players[newPlayer.playerId] = newPlayer
+                self.lobby.state = lobbyInfoTable.lobbyState
+                self.lobby.playerCount = lobbyInfoTable.playerCount
+                self.lobby.playerLimit = lobbyInfoTable.playerLimit
+                self.lobby.createdAt = lobbyInfoTable.createdAt
+                self.lobby.updatedAt = lobbyInfoTable.lastUpdatedAt
             elseif command == 'deleteLobbyAt' then
                 self.lobbies[tonumber(datastring)] = nil
                 for i, id in pairs(self.lobbyOrder) do

@@ -7,8 +7,8 @@ end
 
 function NetworkUtil:parseLobbyData(data, command)
     if command == "addNewLobby" or command == "initLobbies" or command == "initLobby" or command == 'addNewPlayer' then
-        local lobbyId, playersTable, lobbyInfoTable = NetworkUtil:parseLobbyInfo2(data)
-        return lobbyId, playersTable, lobbyInfoTable
+        local lobbyId, playersTable, lobbyInfoTable, newPlayer = NetworkUtil:parseLobbyInfo2(data)
+        return lobbyId, playersTable, lobbyInfoTable, newPlayer
     elseif command == "addLobbyStates" or command == "initLobbyStates" or command == "initLobbyState" or command == "updateLobbyState" then
         local statesTable = NetworkUtil:parseLobbyInfo(data)
         return tonumber(lobbyId), statesTable
@@ -53,6 +53,7 @@ function NetworkUtil:parseLobbyInfo2(string)
         table.insert(sections, section)
     end
     local players = {}
+    local newPlayer = {}
     local lobbyInfo = {}
     local lobbyId = nil
 
@@ -78,9 +79,19 @@ function NetworkUtil:parseLobbyInfo2(string)
                 createdAt = tonumber(createdAt),
                 lastUpdatedAt = tonumber(lastUpdatedAt),
             }
+        elseif key == "newPlayer" then
+            local playerId, playerAddress, playerPort, lastUpdatedAt = string.match(value, "(%d+),([^,]+),(%d+),(%d+)")
+            newPlayer = {
+                playerId = tonumber(playerId),
+                playerAddress = playerAddress,
+                playerPort = tonumber(playerPort),
+                lastUpdatedAt = tonumber(lastUpdatedAt),
+            }
         elseif key == "lobbyId" then
             lobbyId = tonumber(value)
         end
     end
-    return lobbyId, players, lobbyInfo
+        return lobbyId, players, lobbyInfo, newPlayer
+
+
 end

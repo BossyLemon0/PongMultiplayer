@@ -185,9 +185,12 @@ function Network:updatePlayersInLobby(playerfunc, playerdatagram, lobbystatefunc
 end
 -----------------------------------------HEREE---------------------------------------------------
 -- IN PROGRESS
-function Network:updatePlayersInLobby2(playerfunc, playerdatagram, lobbyId)
+function Network:updatePlayersInLobby2(playerfunc, playerdatagram, lobbyId, playerId)
     for i, player in pairs(self.lobbies[lobbyId].gameState.players) do
-        self.udp:sendto(string.format("%s %s", playerfunc, playerdatagram), player.peerAddress, tonumber(player.peerPort))
+        if playerfunc == 'addNewPlayer' and playerId ~= player.playerId then
+            self.udp:sendto(string.format("%s %s", playerfunc, playerdatagram), player.peerAddress, tonumber(player.peerPort))
+        end
+
     end
 end
 -- SOLID REDACTED
@@ -203,17 +206,17 @@ function Network:AddPlayerToLobbyByID(lobbyId, peerAddress, peerPort)
 end
 -- IN PROGRESS
 function Network:AddPlayerToLobbyByID2(lobbyId, playerId, peerAddress, peerPort)
-    self.lobbies[lobbyId].gamestate.players[playerId] = {
+    self.lobbies[lobbyId].gameState.players[playerId] = {
         playerId = playerId,
         peerAddress = peerAddress,
         peerPort = peerPort,
-        lastUpdate = os.time()
+        lastUpdatedAt = os.time()
     }
     self.lobbies[lobbyId].playerCount = self.lobbies[lobbyId].playerCount + 1
     self.lobbies[lobbyId].lastUpdate = os.time()
     --added it as a table just to know what exactly we are getting through payload.WTV
-    local lobbyDatagram = Network:createDatagram2('getLobbyAt',{lobbyId = tonumber(lobbyId)})
-    Network:updatePlayersInLobby2('addNewPlayer', lobbyDatagram, lobbyId)
+    local lobbyDatagram = Network:createDatagram2('getNewPlayer',{lobbyId = tonumber(lobbyId), playerId = tonumber(playerId)})
+    Network:updatePlayersInLobby2('addNewPlayer', lobbyDatagram, lobbyId, playerId)
     
 end
 -- SOLID REDACTED
@@ -378,6 +381,26 @@ function Network:createDatagram2(query, payload)
         .. tostring(lobby.createdAt)..','
         .. tostring(lobby.updatedAt)
         return lobbyString
+    elseif query == "getNewPlayer" then
+        local lobbyString =  ''
+        local lobby = self.lobbies[payload.lobbyId]
+        local player = lobby.gameState.players[payload.playerId]
+        lobbyString = lobbyString .. "lobbyId=" .. tostring(payload.lobbyId)..";"
+        lobbyString = lobbyString .. "newPlayer="
+            lobbyString = lobbyString
+            ..player.playerId ..","
+            .. player.peerAddress ..","
+            .. player.peerPort ..","
+            .. player.lastUpdatedAt..
+            ";"
+
+        lobbyString = lobbyString .. "lobbyInfo="
+        .. tostring(lobby.state) ..','
+        .. tostring(lobby.playerCount) ..','
+        .. tostring(lobby.playerLimit)..','
+        .. tostring(lobby.createdAt)..','
+        .. tostring(lobby.updatedAt)
+        return lobbyString
     elseif query == "getGameStateAt" then
         local lobbyString =  ''
         local lobby = self.lobbies[payload]
@@ -503,9 +526,9 @@ function Network:update(dt)
                     -- Network:AddLobby(peerHost, tonumber(peerPort), tonumber(lobbyId))
                     Network:AddLobby2(peerHost, tonumber(peerPort), tonumber(lobbyId), tonumber(playerId))
                 elseif entity == 'player' then -- IN PROGRESSS
-                    local lobbyId, peerHost, peerPort = string.match(parms, "(%d+) ([^%s]+) (%d+)")
+                    local lobbyId, playerId, peerHost, peerPort = string.match(parms, "(%d+) (%d+) ([^%s]+) (%d+)")
                     -- entity command is the lobbyId in string
-                    Network:AddPlayerToLobbyByID(tonumber(lobbyId), msg_or_ip, port_or_nil)
+                    Network:AddPlayerToLobbyByID2(tonumber(lobbyId),tonumber(playerId), msg_or_ip, port_or_nil)
                 end
             elseif entitycmd == 'delete' then
                 if entity == 'lobby' then
