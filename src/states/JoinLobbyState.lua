@@ -29,6 +29,7 @@ function JoinLobbyState:enter(params,udp)
     -- print(self.udp:getpeername())
     self.testTimer = 0
     self.NetworkUtil = NetworkUtil()
+    self.initialized = false
 end
 
 function JoinLobbyState:requestLobbies(self,udp)
@@ -61,7 +62,8 @@ function JoinLobbyState:update(dt)
                 local lobbyId, playerTable, lobbyInfo,_ = self.NetworkUtil:parseLobbyData(datastring,command)
                 self.lobbies[lobbyId] = lobbyInfo
                 table.insert(self.lobbyOrder,lobbyId)
-            elseif command == 'addNewLobby' then
+                self.initialized = true
+            elseif command == 'addNewLobby' and self.initialized then
                 local lobbyId, playerTable, lobbyInfo,_   = self.NetworkUtil:parseLobbyData(datastring,command)
                 self.lobbies[lobbyId] = lobbyInfo
                 table.insert(self.lobbyOrder,lobbyId)

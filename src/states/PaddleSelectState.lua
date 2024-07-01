@@ -101,14 +101,10 @@ if self.isMulti then
                 self.lobby.playerLimit = lobbyInfoTable.playerLimit
                 self.lobby.createdAt = lobbyInfoTable.createdAt
                 self.lobby.updatedAt = lobbyInfoTable.lastUpdatedAt
-            elseif command == 'deleteLobbyAt' then
-                self.lobbies[tonumber(datastring)] = nil
-                for i, id in pairs(self.lobbyOrder) do
-                    if id == tonumber(datastring) then
-                        table.remove(self.lobbyOrder, i)
-                    end
-                end
-
+            elseif command == 'disconnectPlayerAt' then
+                local lobbyId,_, lobbyInfoTable,_,playerId = self.NetworkUtil:parseLobbyData(datastring,command)
+                self.lobby.gameState.players[playerId] = nil
+                self.lobby.playerCount = lobbyInfoTable.playerCount
             end
     end
 end

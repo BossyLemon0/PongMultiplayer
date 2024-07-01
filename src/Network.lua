@@ -158,17 +158,15 @@ function Network:DeleteLobby2(lobbyId)
 end
 -- IN PROGRESS
 function Network:DeletePlayer(lobbyId, playerId)
-    self.Lobbies[lobbyId].gameState.players[playerId] = nil
-    for x, player in pairs(self.NetLobbies[lobbyId].gameState.players) do
+    print('should delete')
+    self.lobbies[lobbyId].gameState.players[playerId] = nil
+    for x, player in pairs(self.lobbies[lobbyId].gameState.players) do
         print('Remaing player Id: '..player.playerId)
     end
-    self.Lobbies[lobbyId].playerCount = self.Lobbies[lobbyId].playerCount - 1
-    self.Lobbies[lobbyId].updatedAt = os.time()
-    local lobbydatagram = ""
-    lobbydatagram = lobbydatagram .. "lobbyId="..lobbyId.. ';'
-    Network:updateLobbies2('deleteLobbyAt', lobbydatagram)
-    lobbydatagram = lobbydatagram.. "playerId="..tostring(playerId).. ';'
-    .. "lobbyInfo="..tostring(self.Lobbies[lobbyId].playerCount).."," ..tostring(self.Lobbies[lobbyId].updatedAt)
+    self.lobbies[lobbyId].playerCount = self.lobbies[lobbyId].playerCount - 1
+    self.lobbies[lobbyId].updatedAt = os.time()
+    Network:updateLobbies2('deleteLobby', tostring(lobbyId))
+    local lobbydatagram = Network:createDatagram2("getNewLobbyCount", {lobbyId = lobbyId, playerId = playerId})
     Network:updatePlayersInLobby2('disconnectPlayerAt', lobbydatagram, lobbyId)
 end
 
@@ -414,6 +412,18 @@ function Network:createDatagram2(query, payload)
         .. tostring(lobby.createdAt)..','
         .. tostring(lobby.updatedAt)
         return lobbyString
+    elseif query == "updateLobbyAfterDelete" then
+        local lobbyString =  ''
+        local lobby = self.lobbies[payload.lobbyId]
+        lobbyString = lobbyString .. "lobbyId=" .. tostring(payload.lobbyId)..";"
+        lobbyString = lobbyString .. "playerId=" .. tostring(payload.lobbyId)..";"
+        lobbyString = lobbyString .. "lobbyInfo="
+        .. tostring(lobby.state) ..','
+        .. tostring(lobby.playerCount) ..','
+        .. tostring(lobby.playerLimit)..','
+        .. tostring(lobby.createdAt)..','
+        .. tostring(lobby.updatedAt)
+        return lobbyString
     elseif query == "getGameStateAt" then
         local lobbyString =  ''
         local lobby = self.lobbies[payload]
@@ -550,7 +560,7 @@ function Network:update(dt)
                 end
                 if entity == 'player' then
                     local lobbyId, playerId = string.match(parms, "(%d+) (%d+)")
-                    Network:DeletePlayer(lobbyId, playerId)
+                    Network:DeletePlayer(tonumber(lobbyId),tonumber(playerId))
                 end
             end
         elseif cmd  == 'request' then
