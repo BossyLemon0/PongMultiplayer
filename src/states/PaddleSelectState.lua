@@ -40,6 +40,7 @@ function PaddleSelectState:enter(params, udp)
         PaddleSelectState:requestLobbyInfo(self, self.udp)
         self.NetworkUtil = NetworkUtil()
     end
+    self.initialized = false
 end
 
 function PaddleSelectState:init()
@@ -88,9 +89,10 @@ if self.isMulti then
                 self.lobby.playerLimit = lobbyInfoTable.playerLimit
                 self.lobby.createdAt = lobbyInfoTable.createdAt
                 self.lobby.updatedAt = lobbyInfoTable.lastUpdatedAt
+                self.initialized = true
 
 
-            elseif command == 'addNewPlayer' then
+            elseif command == 'addNewPlayer' and self.initialized == true then
                 print('should add new player')
                 local lobbyId, playerTable, lobbyInfoTable, newPlayer = self.NetworkUtil:parseLobbyData(datastring,command)
                 print(newPlayer.playerId)
@@ -130,25 +132,44 @@ end
     if love.keyboard.wasPressed('return') or love.keyboard.wasPressed('enter') then
         gSounds['confirm']:play()
 
-        local bricks, powers, keypowers, hasKey, key = LevelMaker.createMap(INIT_LEVEL, self.isMulti)
+        if self.isMulti then
+            local bricks, powers, keypowers, hasKey, key = LevelMaker.createMap(INIT_LEVEL, self.isMulti)
 
-        gStateMachine:change('serve', {
-            paddle = Paddle(self.currentPaddle),
-            bricks = bricks,
-            powers = powers,
-            keypowers = keypowers,
-            hasKey = hasKey,
-            key = key,
-            health = 3,
-            score = 0,
-            highScores = self.highScores,
-            level = INIT_LEVEL,
-            recoverPoints = 5000,
-            isMulti = self.multi,
-            lobbyId = self.lobbyId,
-            lobby = self.lobby,
-            lobbyState = self.lobbyState,
-        }, self.udp)
+            gStateMachine:change('serve', {
+                paddle = Paddle(self.currentPaddle, self.isMulti),
+                bricks = bricks,
+                powers = powers,
+                keypowers = keypowers,
+                hasKey = hasKey,
+                key = key,
+                health = 3,
+                score = 0,
+                highScores = self.highScores,
+                level = INIT_LEVEL,
+                recoverPoints = 5000,
+                isMulti = self.isMulti,
+                lobbyId = self.lobbyId,
+                playerId = self.playerId,
+                lobby = self.lobby,
+            }, self.udp)
+            else
+                local bricks, powers, keypowers, hasKey, key = LevelMaker.createMap(INIT_LEVEL)
+
+                gStateMachine:change('serve', {
+                    paddle = Paddle(self.currentPaddle),
+                    bricks = bricks,
+                    powers = powers,
+                    keypowers = keypowers,
+                    hasKey = hasKey,
+                    key = key,
+                    health = 3,
+                    score = 0,
+                    highScores = self.highScores,
+                    level = INIT_LEVEL,
+                    recoverPoints = 5000
+                })
+        end
+        
     end
 
     if love.keyboard.wasPressed('escape') then

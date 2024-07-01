@@ -64,9 +64,10 @@ function NetworkUtil:parseLobbyInfo2(string)
         if key == "players" then
             -- Split player data using semicolons
             for player in string.gmatch(value, "([^;]+)") do
-                local playerId, playerAddress, playerPort, lastUpdatedAt = string.match(player, "(%d+),([^,]+),(%d+),(%d+)")
+                local playerId, playerOrder, playerAddress, playerPort, lastUpdatedAt = string.match(player, "(%d+),(%d+),([^,]+),(%d+),(%d+)")
                 table.insert(players, {
                     playerId = tonumber(playerId),
+                    playerOrder = tonumber(playerOrder),
                     playerAddress = playerAddress,
                     playerPort = tonumber(playerPort),
                     lastUpdatedAt = tonumber(lastUpdatedAt),
@@ -82,9 +83,10 @@ function NetworkUtil:parseLobbyInfo2(string)
                 lastUpdatedAt = tonumber(lastUpdatedAt),
             }
         elseif key == "newPlayer" then
-            local playerId, playerAddress, playerPort, lastUpdatedAt = string.match(value, "(%d+),([^,]+),(%d+),(%d+)")
+            local playerId, playerOrder, playerAddress, playerPort, lastUpdatedAt = string.match(value, "(%d+),(%d+),([^,]+),(%d+),(%d+)")
             newPlayer = {
                 playerId = tonumber(playerId),
+                playerOrder = tonumber(playerOrder),
                 playerAddress = playerAddress,
                 playerPort = tonumber(playerPort),
                 lastUpdatedAt = tonumber(lastUpdatedAt),

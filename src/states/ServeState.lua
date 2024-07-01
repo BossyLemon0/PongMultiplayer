@@ -33,7 +33,14 @@ function ServeState:enter(params, udp)
     -- init new ball (random color for fun)
     self.ball = Ball()
     self.ball.skin = math.random(7)
-    self.udp = udp
+    if params.isMulti then
+        self.udp = udp
+        self.lobby = params.lobby
+        self.lobbyId = params.lobbyId
+        self.playerId = params.playerId
+    end
+
+    --lobbystate
 end
 
 function ServeState:update(dt)

@@ -91,6 +91,7 @@ function Network:AddLobby2(peerAddress, peerPort, lobbyId, playerId)
         self.lobbies[lobbyId].updatedAt = os.time()
         self.lobbies[lobbyId].gameState.players[playerId] = {
             playerId = playerId,
+            playerOrder = self.lobbies[lobbyId].playerCount,
             peerAddress = peerAddress,
             peerPort = peerPort,
             lastUpdatedAt= os.time(),
@@ -204,14 +205,15 @@ function Network:AddPlayerToLobbyByID(lobbyId, peerAddress, peerPort)
 end
 -- IN PROGRESS
 function Network:AddPlayerToLobbyByID2(lobbyId, playerId, peerAddress, peerPort)
+    self.lobbies[lobbyId].playerCount = self.lobbies[lobbyId].playerCount + 1
+    self.lobbies[lobbyId].lastUpdate = os.time()
     self.lobbies[lobbyId].gameState.players[playerId] = {
         playerId = playerId,
+        playerOrder = self.lobbies[lobbyId].playerCount,
         peerAddress = peerAddress,
         peerPort = peerPort,
         lastUpdatedAt = os.time()
     }
-    self.lobbies[lobbyId].playerCount = self.lobbies[lobbyId].playerCount + 1
-    self.lobbies[lobbyId].lastUpdate = os.time()
     --added it as a table just to know what exactly we are getting through payload.WTV
     local lobbyDatagram = Network:createDatagram2('getNewPlayer',{lobbyId = tonumber(lobbyId), playerId = tonumber(playerId)})
     Network:updatePlayersInLobby2('addNewPlayer', lobbyDatagram, lobbyId, playerId)
@@ -369,6 +371,7 @@ function Network:createDatagram2(query, payload)
         for i, player in pairs(lobby.gameState.players) do
             lobbyString = lobbyString
             ..player.playerId ..","
+            ..player.playerOrder ..","
             .. player.peerAddress ..","
             .. player.peerPort ..","
             .. player.lastUpdatedAt..
@@ -389,6 +392,7 @@ function Network:createDatagram2(query, payload)
         lobbyString = lobbyString .. "newPlayer="
             lobbyString = lobbyString
             ..player.playerId ..","
+            ..player.playerOrder ..","
             .. player.peerAddress ..","
             .. player.peerPort ..","
             .. player.lastUpdatedAt..
