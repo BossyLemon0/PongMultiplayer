@@ -366,17 +366,27 @@ function Network:createDatagram2(query, payload)
     elseif query == "getLobbyAt" then
         local lobbyString =  ''
         local lobby = self.lobbies[payload.lobbyId]
+        print("-------------------here-----------------------------")
+        print(#lobby.gameState.players)
         lobbyString = lobbyString .. "lobbyId=" .. tostring(payload.lobbyId)..";"
         lobbyString = lobbyString .. "players="
+        -- set a counter, because the indexes are set to random, so i isnt 1,2,3,4,5 rather wtv rand player id order.
+        local counter = 1
         for i, player in pairs(lobby.gameState.players) do
             lobbyString = lobbyString
             ..player.playerId ..","
             ..player.playerOrder ..","
-            .. player.peerAddress ..","
-            .. player.peerPort ..","
-            .. player.lastUpdatedAt..
-            ";"
+            ..player.peerAddress ..","
+            ..player.peerPort ..","
+            ..player.lastUpdatedAt
+            if counter ~= lobby.playerCount then
+                lobbyString = lobbyString .. "|"
+            end
+            counter = counter + 1
         end
+        lobbyString = lobbyString .. ";"
+        print(lobbyString)
+        print("-------------------here-----------------------------")
         lobbyString = lobbyString .. "lobbyInfo="
         .. tostring(lobby.state) ..','
         .. tostring(lobby.playerCount) ..','

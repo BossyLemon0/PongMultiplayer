@@ -73,11 +73,12 @@ if self.isMulti then
         -- ^(%S+): Matches one or more non-whitespace characters at the start of the string and captures them in command.
         -- (.+)$: Matches one or more characters until the end of the string and captures them in datastring. 
         print('you received the data')
-        print(data)
         local command, datastring = data:match("^(%S+) (.+)$")
         print(command)
             if command == 'initLobby' then
-                local lobbyId, playerTable, lobbyInfoTable = self.NetworkUtil:parseLobbyData(datastring,command)
+                print('----softHere-----')
+                print(data)
+                local lobbyId, playerTable, lobbyInfoTable,_,_ = self.NetworkUtil:parseLobbyData(datastring,command)
                 for i, player in pairs(playerTable) do
                     print(player.playerId)
                     self.lobby.gameState.players[player.playerId] = player
@@ -94,7 +95,7 @@ if self.isMulti then
 
             elseif command == 'addNewPlayer' and self.initialized == true then
                 print('should add new player')
-                local lobbyId, playerTable, lobbyInfoTable, newPlayer = self.NetworkUtil:parseLobbyData(datastring,command)
+                local lobbyId, playerTable, lobbyInfoTable, newPlayer,_ = self.NetworkUtil:parseLobbyData(datastring,command)
                 print(newPlayer.playerId)
                 -- reconstruct lobby and lobby order
                 self.lobby.gameState.players[newPlayer.playerId] = newPlayer
@@ -136,7 +137,7 @@ end
             local bricks, powers, keypowers, hasKey, key = LevelMaker.createMap(INIT_LEVEL, self.isMulti)
 
             gStateMachine:change('serve', {
-                paddle = Paddle(self.currentPaddle, self.isMulti),
+                paddle = Paddle(self.currentPaddle, self.isMulti, self.lobby.gameState.players[self.playerId].playerOrder),
                 bricks = bricks,
                 powers = powers,
                 keypowers = keypowers,

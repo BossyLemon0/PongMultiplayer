@@ -19,7 +19,7 @@ Paddle = Class{}
     Our Paddle will initialize at the same spot every time, in the middle
     of the world horizontally, toward the bottom.
 ]]
-function Paddle:init(skin, isMulti, player)
+function Paddle:init(skin, isMulti, playerOrder)
     -- x is placed in the middle
     self.x = VIRTUAL_WIDTH / 2 - 32
 
@@ -32,6 +32,37 @@ function Paddle:init(skin, isMulti, player)
     -- starting dimensions
     self.width = 64
     self.height = 16
+    self.isMulti = isMulti
+    self.playerOrder = playerOrder
+    print('---------------------------------------Initializing------------------------------------------------')
+    if isMulti then
+        print('---------------------------------------IS MULTI------------------------------------------------')
+        if playerOrder == 1 or playerOrder == 2 then
+            self.width = 64
+            self.height = 16
+            self.x = VIRTUAL_WIDTH / 2 - 32
+        else
+            self.width = 16
+            self.height = 64
+            self.y = VIRTUAL_WIDTH / 2 - 32
+        end
+
+        if playerOrder == 1 then
+            self.y = VIRTUAL_HEIGHT - 32
+        elseif playerOrder == 2 then
+            self.y =  32
+        elseif playerOrder == 3 then
+            self.x = VIRTUAL_WIDTH - 32
+        elseif playerOrder == 4 then
+            self.x = 32
+        end
+
+
+
+    
+        self.dx = 0
+        self.dy = 0
+    end
 
     -- the skin only has the effect of changing our color, used to offset us
     -- into the gPaddleSkins table later
@@ -50,29 +81,73 @@ function Paddle:init(skin, isMulti, player)
 
 end
 
+--IN PROGRESS
+
 function Paddle:update(dt)
     -- keyboard input
-    if love.keyboard.isDown('left') then
-        self.dx = -PADDLE_SPEED
-    elseif love.keyboard.isDown('right') then
-        self.dx = PADDLE_SPEED
+    if self.isMulti then
+        --defines how the paddle should move based on which player
+            if love.keyboard.isDown('left') then
+                if self.playerOrder == 1 then
+                    self.dx = -PADDLE_SPEED
+                elseif self.playerOrder == 2 then
+                    self.dx = PADDLE_SPEED
+                elseif self.playerOrder == 3 then
+                    self.dy = PADDLE_SPEED
+                elseif self.playerOrder == 4 then
+                    self.dy = -PADDLE_SPEED
+                end
+                self.dx = -PADDLE_SPEED
+            elseif love.keyboard.isDown('right') then
+                if self.playerOrder == 1 then
+                    self.dx = PADDLE_SPEED
+                elseif self.playerOrder == 2 then
+                    self.dx = -PADDLE_SPEED
+                elseif self.playerOrder == 3 then
+                    self.dy = -PADDLE_SPEED
+                elseif self.playerOrder == 4 then
+                    self.dy = PADDLE_SPEED
+                end
+                self.dx = PADDLE_SPEED
+            else
+                self.dx = 0
+            end
+        --defines the boundaries of each paddle
+        if self.playerOrder == 1 or self.playerOrder == 2 then
+            if self.dx < 0 then
+                --keeps paddle from going too far left
+                self.x = math.max(0, self.x + self.dx * dt)
+            else
+                --keeps paddle from going too far right
+                self.x = math.min(VIRTUAL_WIDTH - self.width, self.x + self.dx * dt)
+            end
+        else
+            if self.dy < 0 then
+                --keeps paddle from going too far up
+                self.y = math.max(0, self.y + self.dy * dt)
+            else
+                --keeps paddle from going too far down
+                self.y = math.min(VIRTUAL_HEIGHT - self.width, self.y + self.dy * dt)
+            end
+        end
+
     else
-        self.dx = 0
+        if love.keyboard.isDown('left') then
+            self.dx = -PADDLE_SPEED
+        elseif love.keyboard.isDown('right') then
+            self.dx = PADDLE_SPEED
+        else
+            self.dx = 0
+        end
+        if self.dx < 0 then
+            --keeps paddle from going too far left
+            self.x = math.max(0, self.x + self.dx * dt)
+        else
+            --keeps paddle from going too far right
+            self.x = math.min(VIRTUAL_WIDTH - self.width, self.x + self.dx * dt)
+        end
     end
 
-    -- math.max here ensures that we're the greater of 0 or the player's
-    -- current calculated Y position when pressing up so that we don't
-    -- go into the negatives; the movement calculation is simply our
-    -- previously-defined paddle speed scaled by dt
-    if self.dx < 0 then
-        self.x = math.max(0, self.x + self.dx * dt)
-    -- similar to before, this time we use math.min to ensure we don't
-    -- go any farther than the bottom of the screen minus the paddle's
-    -- height (or else it will go partially below, since position is
-    -- based on its top left corner)
-    else
-        self.x = math.min(VIRTUAL_WIDTH - self.width, self.x + self.dx * dt)
-    end
 end
 
 --[[
