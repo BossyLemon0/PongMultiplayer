@@ -71,7 +71,7 @@ function Logger:log(level, message, data)
         
         -- If there's data, print it as JSON
         if data then
-            print(string.format("%sData: %s%s", 
+            print(string.format("            %sData: %s%s", 
                 color,
                 Json:encode(data), -- Encode the data as JSON
                 self.Colors.RESET
