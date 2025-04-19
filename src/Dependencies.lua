@@ -20,16 +20,16 @@ Timer = require 'lib/knife.timer'
 require 'src/constants'
 
 -- the ball that travels around, breaking bricks and triggering lives lost
-require 'src/Ball'
+require 'src/components/Ball'
 
 -- the entities in our game map that give us points when we collide with them
-require 'src/Brick'
+require 'src/components/Brick'
 
 -- the rectangular entity the player controls, which deflects the ball
-require 'src/Paddle'
+require 'src/components/Paddle'
 
 -- the power ups
-require 'src/PowerUp'
+require 'src/components/PowerUp'
 
 -- a class used to generate our brick layouts (levels)
 require 'src/LevelMaker'
@@ -40,9 +40,11 @@ require 'src/StateMachine'
 
 -- utility functions, mainly for splitting our sprite sheet into various Quads
 -- of differing sizes for paddles, balls, bricks, etc.
-require 'src/Util'
+require 'src/helpers/Util'
 require 'src/NetworkUtil'
-require 'src/Test'
+require 'src/helpers/Test'
+require 'src/helpers/json' -- JSON utility for logging
+require 'src/helpers/Logger' -- logging utility
 
 --Network code
 require 'src/Network'

@@ -44,17 +44,17 @@ function Paddle:init(skin, isMulti, playerOrder)
         else
             self.width = 16
             self.height = 64
-            self.y = VIRTUAL_WIDTH / 2 - 32
+            self.y = VIRTUAL_HEIGHT / 2 - 32
         end
 
         if playerOrder == 1 then
             self.y = VIRTUAL_HEIGHT - 32
         elseif playerOrder == 2 then
-            self.y =  32
+            self.y =  16
         elseif playerOrder == 3 then
             self.x = VIRTUAL_WIDTH - 32
         elseif playerOrder == 4 then
-            self.x = 32
+            self.x = 16 --guessing
         end
 
 
@@ -155,6 +155,27 @@ end
     that corresponds to the proper skin and size.
 ]]
 function Paddle:render()
-    love.graphics.draw(gTextures['main'], gFrames['paddles'][self.size + 4 * (self.skin - 1)],
+    if self.isMulti then
+        if self.playerOrder == 1 then
+            love.graphics.draw(gTextures['main'], gFrames['paddles'][self.size + 4 * (self.skin - 1)],
+            self.x, self.y)
+        elseif self.playerOrder == 2 then
+            love.graphics.draw(gTextures['main'], gFrames['paddles'][self.size + 4 * (self.skin - 1)],
+            self.x, self.y, math.rad(180), 1, 1, self.width, self.height)
+            -- love.graphics.draw(gTextures['main'], gFrames['paddles'][self.size + 4 * (self.skin - 1)],
+            -- self.x, self.y)
+        elseif self.playerOrder == 3 then
+            love.graphics.draw(gTextures['main'], gFrames['paddles'][self.size + 4 * (self.skin - 1)],
+            self.x, self.y, math.rad(270), 1, 1, self.width/2, self.height/2)
+        elseif self.playerOrder == 4 then
+            -- love.graphics.draw(gTextures['main'], gFrames['paddles'][self.size + 4 * (self.skin - 1)],
+            -- self.x, self.y, math.rad(-90), 1, 1, self.width, self.height)
+            love.graphics.draw(gTextures['main'], gFrames['paddles'][self.size + 4 * (self.skin - 1)],
+            self.x, self.y, math.rad(90), 1, 1, self.width/2, self.height/2)
+        end
+    else
+        love.graphics.draw(gTextures['main'], gFrames['paddles'][self.size + 4 * (self.skin - 1)],
         self.x, self.y)
+    end
+
 end

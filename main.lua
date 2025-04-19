@@ -32,34 +32,43 @@ require 'src/Dependencies'
 ]]
 
 local localaddress = "localhost"   -- change address to be the ip address of machine
-
 local updaterate = 0.1 -- how long to wait, in seconds, before requesting an update
-
 local world = {} -- the empty world-state
 local t
 
 function love.load()
+    -- Set log level (DEBUG for development, INFO for production)
+    Logger:init()
+    Logger:setLevel(Logger.Levels.DEBUG)
+    Logger:info("Game starting up")
+
     -- set love's default filter to "nearest-neighbor", which essentially
     -- means there will be no filtering of pixels (blurriness), which is
     -- important for a nice crisp, 2D look
 
     -- seed the RNG so that calls to random are always random
     math.randomseed(os.time())
+    Logger:debug("RNG seeded with time: " .. os.time())
 
     --network code
     Network:Init()
-    Test:Init()
+    Logger:info("Network initialized")
+    
     udp = socket.udp()
     udp:settimeout(0)
 
     udp:setsockname('*', 0) --binds to any open port
     udp:setpeername(localaddress, 12345)
     address, port = udp:getsockname()
+    
+    Logger:info("UDP socket created", {
+        address = address,
+        port = port
+    })
 
     local addPeerdg = string.format("%s %s %s %s %d", "peer", 'update', 'add', address, port)
     udp:send(addPeerdg)
-    
-
+    Logger:debug("Sent peer add message")
 
     --crisp or blurry textures 
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -334,7 +343,13 @@ function displayFPS()
     -- simple FPS display across all states
     love.graphics.setFont(gFonts['small'])
     love.graphics.setColor(0, 1, 0, 1)
-    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 5, 5)
+    local fps = love.timer.getFPS()
+    love.graphics.print('FPS: ' .. tostring(fps), 5, 5)
+    
+    -- Log FPS if it drops below 30
+    if fps < 30 then
+        -- Logger:warn("Low FPS detected", { fps = fps })
+    end
 end
 
 --[[

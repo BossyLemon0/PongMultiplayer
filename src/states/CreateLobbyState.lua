@@ -24,8 +24,8 @@ function CreateLobbyState:enter(params,udp)
     self.lobbyId = 0
     self.playerId = 0
     self.address, self.port = '', 0
-    print("at Createlobby ".. self.udp:getpeername())
     self.util = NetworkUtil()
+    Logger:info("at Createlobby ".. self.udp:getpeername())
 end
 
 function CreateLobbyState:CreateInfo(udp)
