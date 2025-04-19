@@ -35,10 +35,10 @@ end
 -- peer code
 -- SOLID
 function Network:AddPeers(peerAddress, peerPort)
-    print('added new user: '.. peerAddress.. ":" .. peerPort)
+    Logger:info('added new user: '.. peerAddress.. ":" .. peerPort)
     self.peers[peerAddress .. ":" .. peerPort] = {peerAddress = peerAddress, peerPort = peerPort}
     table.insert(self.peersOrder, peerAddress .. ":" .. peerPort)
-    print('peers'..self.peers[peerAddress .. ":" .. peerPort].peerAddress)
+    Logger:info('peers'..self.peers[peerAddress .. ":" .. peerPort].peerAddress)
     Network:ShowPeers()
 end
 -- SOLID
@@ -540,17 +540,17 @@ function Network:update(dt)
 
     data, msg_or_ip, port_or_nil = self.udp:receivefrom()
     if data then
-        print(data)
+        Logger:debug(data)
         entity, cmd, entitycmd, parms = data:match("^(%S*) (%S*) (%S*) (.*)")
-        print("|"..entity.."|")
-        print("|"..cmd.."|")
-        print("|"..entitycmd.."|")
-        print("|"..parms.."|")
+        Logger:debug("|"..entity.."|")
+        Logger:debug("|"..cmd.."|")
+        Logger:debug("|"..entitycmd.."|")
+        Logger:debug("|"..parms.."|")
         if cmd  == 'move' then
         elseif cmd  == 'at' then
         elseif cmd  == 'update' then
             if entitycmd == 'add' then
-                print('newadd')
+                Logger:debug('newadd')
                 if entity == 'peer' then
                     local peerHost, peerPort = string.match(parms, "([^%s]+) (%d+)")
                     Network:AddPeers(peerHost, peerPort)

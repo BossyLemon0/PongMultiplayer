@@ -61,7 +61,7 @@ function love.load()
     udp:setpeername(localaddress, 12345)
     address, port = udp:getsockname()
     
-    Logger:info("UDP socket created", {
+    Logger:info("UDP socket created:", {
         address = address,
         port = port
     })

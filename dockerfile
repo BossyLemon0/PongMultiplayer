@@ -22,4 +22,4 @@ WORKDIR /src/app
 COPY . .
 
 # Command to run the game
-CMD ["love", "."]
+CMD ["love", "--console","."]
