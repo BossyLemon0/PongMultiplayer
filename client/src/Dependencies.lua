@@ -52,18 +52,22 @@ require 'src/Network'
 -- each of the individual states our game can be in at once; each state has
 -- its own update and render methods that can be called by our state machine
 -- each frame, to avoid bulky code in main.lua
-require 'src/states/BaseState'
-require 'src/states/EnterHighScoreState'
-require 'src/states/GameOverState'
-require 'src/states/HighScoreState'
-require 'src/states/PaddleSelectState'
-require 'src/states/PlayState'
-require 'src/states/ServeState'
-require 'src/states/StartState'
-require 'src/states/VictoryState'
 
---Multiplayer lobby
-require 'src/states/MultiplayerMenuState'
-require 'src/states/CreateLobbyState'
-require 'src/states/WaitForPlayersState'
-require 'src/states/JoinLobbyState'
+--Shared States
+require 'src/states/BaseState'
+require 'src/states/HighScoreState'
+
+--Singleplayer States
+require 'src/states/SinglePlayer/EnterHighScoreState'
+require 'src/states/SinglePlayer/GameOverState'
+require 'src/states/SinglePlayer/PaddleSelectState'
+require 'src/states/SinglePlayer/PlayState'
+require 'src/states/SinglePlayer/ServeState'
+require 'src/states/SinglePlayer/StartState'
+require 'src/states/SinglePlayer/VictoryState'
+
+--Multiplayer States
+require 'src/states/Multiplayer/MultiplayerMenuState'
+require 'src/states/Multiplayer/CreateLobbyState'
+require 'src/states/Multiplayer/WaitForPlayersState'
+require 'src/states/Multiplayer/JoinLobbyState'
