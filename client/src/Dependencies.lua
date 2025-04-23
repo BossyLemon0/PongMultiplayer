@@ -56,6 +56,7 @@ require 'src/Network'
 --Shared States
 require 'src/states/BaseState'
 require 'src/states/HighScoreState'
+require 'src/states/StartState'
 
 --Singleplayer States
 require 'src/states/SinglePlayer/EnterHighScoreState'
@@ -63,7 +64,6 @@ require 'src/states/SinglePlayer/GameOverState'
 require 'src/states/SinglePlayer/PaddleSelectState'
 require 'src/states/SinglePlayer/PlayState'
 require 'src/states/SinglePlayer/ServeState'
-require 'src/states/SinglePlayer/StartState'
 require 'src/states/SinglePlayer/VictoryState'
 
 --Multiplayer States
